@@ -11,7 +11,8 @@ import { getPageTitle } from "@/lib/pageTitles";
 export function Header({ onOpenMenu }: { onOpenMenu: () => void }) {
   const pathname = usePathname();
   const { title, subtitle } = getPageTitle(pathname);
-  const { role } = useRole();
+  const { role, activeView } = useRole();
+  const showApplyCta = role === "employee" || (role === "admin" && activeView === "employee");
 
   return (
     <header className="sticky top-0 z-20 flex min-h-[64px] flex-none flex-wrap items-center justify-between gap-[10px] border-b border-line bg-white/[0.86] px-[20px] py-[10px] backdrop-blur-[8px]">
@@ -39,7 +40,7 @@ export function Header({ onOpenMenu }: { onOpenMenu: () => void }) {
           <span className="font-mono text-[10.5px]">{formatDateChip()}</span>
         </div>
         <NotificationBell />
-        {role === "employee" ? (
+        {showApplyCta ? (
           <Link href="/apply">
             <Button variant="primary">Apply for leave</Button>
           </Link>

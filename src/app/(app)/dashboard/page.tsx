@@ -6,9 +6,9 @@ import { ManagerOverviewScreen } from "@/components/manager/ManagerOverviewScree
 import { useRole } from "@/context/RoleContext";
 
 export default function DashboardPage() {
-  const { role } = useRole();
+  const { role, activeView } = useRole();
 
   if (role === "manager") return <ManagerOverviewScreen />;
-  if (role === "admin") return <AdminDashboard />;
+  if (role === "admin") return activeView === "employee" ? <EmployeeDashboard /> : <AdminDashboard />;
   return <EmployeeDashboard />;
 }

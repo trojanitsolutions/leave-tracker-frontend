@@ -134,14 +134,8 @@ export function EmployeeFormModal({ managers, editing, onClose, onSaved }: Emplo
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-[rgba(14,15,17,0.42)] p-8"
-      onClick={onClose}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="max-h-full w-full max-w-[640px] overflow-auto rounded-[16px] border border-line bg-card shadow-[0_24px_64px_-24px_rgba(14,15,17,0.45)]"
-      >
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[rgba(14,15,17,0.42)] p-8">
+      <div className="max-h-full w-full max-w-[640px] overflow-auto rounded-[16px] border border-line bg-card shadow-[0_24px_64px_-24px_rgba(14,15,17,0.45)]">
         <div className="flex items-start gap-4 border-b border-line px-[24px] py-[20px] pb-[16px]">
           <div>
             <div className="text-[17px] font-semibold tracking-[-0.02em]">

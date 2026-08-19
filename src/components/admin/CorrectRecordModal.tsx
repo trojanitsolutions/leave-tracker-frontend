@@ -48,19 +48,22 @@ export function CorrectRecordModal({ record, onClose, onSaved }: CorrectRecordMo
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-[rgba(14,15,17,0.42)] p-8"
-      onClick={onClose}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-[480px] overflow-auto rounded-[16px] border border-line bg-card shadow-[0_24px_64px_-24px_rgba(14,15,17,0.45)]"
-      >
-        <div className="border-b border-line px-[24px] py-[20px] pb-[16px]">
-          <div className="text-[17px] font-semibold tracking-[-0.02em]">Correct record</div>
-          <div className="mt-[3px] text-[12.5px] text-muted">
-            {record.employeeName} — {record.type}
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[rgba(14,15,17,0.42)] p-8">
+      <div className="w-full max-w-[480px] overflow-auto rounded-[16px] border border-line bg-card shadow-[0_24px_64px_-24px_rgba(14,15,17,0.45)]">
+        <div className="flex items-start gap-4 border-b border-line px-[24px] py-[20px] pb-[16px]">
+          <div>
+            <div className="text-[17px] font-semibold tracking-[-0.02em]">Correct record</div>
+            <div className="mt-[3px] text-[12.5px] text-muted">
+              {record.employeeName} — {record.type}
+            </div>
           </div>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="ml-auto flex h-7 w-7 flex-none items-center justify-center rounded-[8px] text-[15px] text-muted transition-colors hover:bg-surface"
+          >
+            ✕
+          </button>
         </div>
 
         <form onSubmit={handleSubmit}>

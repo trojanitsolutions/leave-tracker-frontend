@@ -4,8 +4,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { useRole } from "@/context/RoleContext";
+import { ActiveView, useRole } from "@/context/RoleContext";
 import { NAV_ITEMS } from "@/data/mock";
+
+const VIEW_TOGGLE_OPTIONS: { view: ActiveView; label: string }[] = [
+  { view: "admin", label: "Admin" },
+  { view: "employee", label: "Emp" },
+];
 
 function getInitials(fullName: string): string {
   return fullName
@@ -24,15 +29,24 @@ interface SidebarProps {
 export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { role, user } = useRole();
+  const { role, user, activeView, setActiveView } = useRole();
   const { employee, logout } = useAuth();
-  const navItems = NAV_ITEMS[role];
+
+  const isAdmin = role === "admin";
+  const navItems = isAdmin ? NAV_ITEMS[activeView === "employee" ? "employee" : "admin"] : NAV_ITEMS[role];
+  const roleTag = isAdmin && activeView === "employee" ? "EMP" : user.roleTag;
 
   // Real logged-in identity always wins over the mock "viewing as" persona,
   // regardless of role — a real manager or admin sees their own name too.
   const displayName = employee ? employee.fullName : user.fullName;
   const displayCode = employee ? employee.employeeCode : user.employeeCode;
   const displayInitials = employee ? getInitials(employee.fullName) : user.initials;
+
+  function handleSwitchView(view: ActiveView) {
+    setActiveView(view);
+    router.push("/dashboard");
+    onClose();
+  }
 
   async function handleSignOut() {
     await logout();
@@ -55,7 +69,7 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
           priority
         />
         <div className="ml-auto flex-none rounded-[5px] border border-white/[0.14] px-[5px] py-[2px] font-mono text-[9px] tracking-[0.06em] text-white/[0.32]">
-          {user.roleTag}
+          {roleTag}
         </div>
         <button
           onClick={onClose}
@@ -97,6 +111,30 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
       </nav>
 
       <div className="flex flex-col gap-[10px]">
+        {isAdmin ? (
+          <div className="rounded-[10px] border border-white/[0.07] bg-white/[0.05] px-[10px] py-[9px]">
+            <div className="mb-[7px] font-mono text-[9px] tracking-[0.08em] text-white/[0.32]">
+              VIEWING AS
+            </div>
+            <div className="flex gap-[3px]">
+              {VIEW_TOGGLE_OPTIONS.map(({ view, label }) => {
+                const isActive = activeView === view;
+                return (
+                  <button
+                    key={view}
+                    onClick={() => handleSwitchView(view)}
+                    className={`flex-1 rounded-[6px] py-[5px] text-center text-[11px] font-semibold transition-colors ${
+                      isActive ? "bg-accent text-[#04252B]" : "text-white/[0.55] hover:text-white"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
+
         <div className="flex items-center gap-[10px] rounded-[10px] px-[10px] py-[9px] transition-colors hover:bg-white/[0.06]">
           <div className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-accent text-[11.5px] font-semibold text-[#04252B]">
             {displayInitials}

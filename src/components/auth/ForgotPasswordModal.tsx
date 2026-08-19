@@ -86,14 +86,15 @@ export function ForgotPasswordModal({ onClose }: ForgotPasswordModalProps) {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-[rgba(14,15,17,0.42)] p-8"
-      onClick={onClose}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-[400px] overflow-auto rounded-[16px] border border-line bg-card p-[28px] shadow-[0_24px_64px_-24px_rgba(14,15,17,0.45)]"
-      >
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[rgba(14,15,17,0.42)] p-8">
+      <div className="relative w-full max-w-[400px] overflow-auto rounded-[16px] border border-line bg-card p-[28px] shadow-[0_24px_64px_-24px_rgba(14,15,17,0.45)]">
+        <button
+          onClick={onClose}
+          aria-label="Close"
+          className="absolute right-[16px] top-[16px] flex h-7 w-7 flex-none items-center justify-center rounded-[8px] text-[15px] text-muted transition-colors hover:bg-surface"
+        >
+          ✕
+        </button>
         {step === "email" ? (
           <>
             <div className="text-[17px] font-semibold tracking-[-0.02em]">Reset your password</div>
