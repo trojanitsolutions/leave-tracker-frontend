@@ -1,12 +1,11 @@
 import { Card } from "@/components/ui/Card";
-import { ADMIN_DEPT_LOAD } from "@/data/mock";
 import { DepartmentLoad } from "@/types/domain";
 
 interface DeptLoadCardProps {
-  departments?: DepartmentLoad[];
+  departments: DepartmentLoad[];
 }
 
-export function DeptLoadCard({ departments = ADMIN_DEPT_LOAD }: DeptLoadCardProps = {}) {
+export function DeptLoadCard({ departments }: DeptLoadCardProps) {
   return (
     <Card className="p-[18px]">
       <div className="mb-[14px] text-[13.5px] font-semibold">Leave load by department</div>

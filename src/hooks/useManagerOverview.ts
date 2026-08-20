@@ -14,7 +14,7 @@ interface UseManagerOverviewResult {
 /** Fetches the real manager team overview — only when `enabled`. */
 export function useManagerOverview(enabled: boolean): UseManagerOverviewResult {
   const [data, setData] = useState<ManagerOverview | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0);
 

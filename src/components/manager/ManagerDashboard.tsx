@@ -1,36 +1,30 @@
 "use client";
 
-import { QueueList } from "@/components/manager/QueueList";
 import { QueueStatCards } from "@/components/manager/QueueStatCards";
 import { RealQueueList } from "@/components/manager/RealQueueList";
-import { useAuth } from "@/context/AuthContext";
+import { LoadingState } from "@/components/ui/Spinner";
 import { useManagerQueue } from "@/hooks/useManagerQueue";
 
 export function ManagerDashboard() {
-  const { employee } = useAuth();
-  const isRealManager = employee?.role === "manager";
-  const { data, isLoading, error, refresh } = useManagerQueue(isRealManager);
+  // Only mounted by ApprovalsPage once the real session's role is confirmed "manager".
+  const { data, isLoading, error, refresh } = useManagerQueue(true);
 
-  if (isRealManager) {
+  if (error) {
     return (
-      <div className="flex w-full flex-col gap-[16px]">
-        <QueueStatCards {...(data?.stats ?? {})} />
-        <RealQueueList
-          queue={data?.queue ?? []}
-          isLoading={isLoading}
-          error={error}
-          onRefresh={refresh}
-        />
+      <div className="rounded-[12px] border border-status-rejected-fg/20 bg-status-rejected-bg px-4 py-3 text-[13px] text-status-rejected-fg">
+        Couldn&rsquo;t load the queue: {error}
       </div>
     );
   }
 
-  // Not authenticated as a real manager (or previewing via "viewing as") —
-  // original mocked experience, unchanged.
+  if (isLoading || !data) {
+    return <LoadingState label="Loading your approval queue…" />;
+  }
+
   return (
     <div className="flex w-full flex-col gap-[16px]">
-      <QueueStatCards />
-      <QueueList />
+      <QueueStatCards {...data.stats} />
+      <RealQueueList queue={data.queue} isLoading={false} error={null} onRefresh={refresh} />
     </div>
   );
 }

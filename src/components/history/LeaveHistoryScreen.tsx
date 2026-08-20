@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { StatusPill } from "@/components/ui/StatusPill";
+import { LoadingState } from "@/components/ui/Spinner";
 import { useLeaveHistory } from "@/hooks/useLeaveHistory";
 import { formatRangeLabelUpper, formatShortDate } from "@/lib/date";
 import { LeaveDecisionStatus } from "@/types/domain";
@@ -64,7 +65,7 @@ export function LeaveHistoryScreen() {
         </div>
 
         {isLoading ? (
-          <div className="px-[20px] py-[24px] text-center text-[12.5px] text-muted">Loading…</div>
+          <LoadingState label="Loading your leave history…" />
         ) : error ? (
           <div className="px-[20px] py-[24px] text-center text-[12.5px] text-status-rejected-fg">{error}</div>
         ) : filtered.length === 0 ? (

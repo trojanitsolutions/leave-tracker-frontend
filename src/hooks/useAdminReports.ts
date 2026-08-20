@@ -13,7 +13,7 @@ interface UseAdminReportsResult {
 
 export function useAdminReports(enabled: boolean, year?: number, department?: string): UseAdminReportsResult {
   const [data, setData] = useState<AdminReportsResult | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0);
 

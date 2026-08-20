@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/Card";
+import { LoadingState } from "@/components/ui/Spinner";
 import { useAdminReports } from "@/hooks/useAdminReports";
 import { AdminReportsResult } from "@/types/domain";
 
@@ -54,7 +55,7 @@ export function ReportsScreen() {
   );
 
   if (isLoading || !data) {
-    return <div className="text-[13px] text-muted">Loading reports…</div>;
+    return <LoadingState label="Loading reports…" />;
   }
 
   if (error) {

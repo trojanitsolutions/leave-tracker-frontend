@@ -83,9 +83,9 @@ export function LoginForm() {
 
       <div className="flex items-center justify-center bg-card px-6 py-16">
         <div className="w-full max-w-[352px]">
-          <div className="text-2xl font-semibold tracking-[-0.025em]">Sign in</div>
-          <div className="mt-1.5 text-[13.5px] text-muted">
-            Use your work email. Access is provisioned by HR.
+          <div className="text-center text-2xl font-semibold  tracking-[-0.025em]">Sign in</div>
+          <div className="mt-1.5 text-center text-[13.5px] text-muted">
+            {/* Use your work email. Access is provisioned by HR. */}
           </div>
 
           <form onSubmit={handleSignIn} className="mt-6.5 flex flex-col gap-3.5">
@@ -134,13 +134,13 @@ export function LoginForm() {
             </Button>
           </form>
 
-          <div className="mt-5.5 text-[11.5px] leading-relaxed text-muted-2">
+          {/* <div className="mt-5.5 text-[11.5px] leading-relaxed text-muted-2">
             Demo password: <span className="font-mono text-ink">TrojanDemo123!</span> — dev-only,
             removed once HR provisions real accounts.
           </div>
           <div className="mt-2 text-[11.5px] leading-relaxed text-muted-2">
             Trouble signing in? Contact HR on ext. 2210 or hr@trojantech.qa
-          </div>
+          </div> */}
         </div>
       </div>
 

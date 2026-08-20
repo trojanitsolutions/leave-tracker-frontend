@@ -1,24 +1,23 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { EMPLOYEE_ON_LEAVE } from "@/data/mock";
 
 interface OnLeaveBannerProps {
-  label?: string;
-  dayNumber?: number;
-  totalDays?: number;
-  expectedBackToWork?: string;
-  progressPercent?: number;
-  showExtensionCta?: boolean;
+  label: string;
+  dayNumber: number;
+  totalDays: number;
+  expectedBackToWork: string;
+  progressPercent: number;
+  showExtensionCta: boolean;
 }
 
 export function OnLeaveBanner({
-  label = "On Annual Leave",
-  dayNumber = EMPLOYEE_ON_LEAVE.dayNumber,
-  totalDays = EMPLOYEE_ON_LEAVE.totalDays,
-  expectedBackToWork = EMPLOYEE_ON_LEAVE.expectedBackToWork,
-  progressPercent = EMPLOYEE_ON_LEAVE.progressPercent,
-  showExtensionCta = true,
-}: OnLeaveBannerProps = {}) {
+  label,
+  dayNumber,
+  totalDays,
+  expectedBackToWork,
+  progressPercent,
+  showExtensionCta,
+}: OnLeaveBannerProps) {
   return (
     <div
       className="flex flex-wrap items-center gap-4 rounded-[12px] border border-[#CFE7EE] px-[18px] py-[14px]"

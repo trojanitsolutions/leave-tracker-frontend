@@ -13,7 +13,7 @@ interface UseTeamHistoryResult {
 
 export function useTeamHistory(enabled: boolean): UseTeamHistoryResult {
   const [rows, setRows] = useState<TeamHistoryRow[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0);
 

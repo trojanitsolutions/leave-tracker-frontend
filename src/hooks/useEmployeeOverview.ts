@@ -14,7 +14,7 @@ interface UseEmployeeOverviewResult {
 /** Fetches the real balance/status/recent-requests overview — only when `enabled`. */
 export function useEmployeeOverview(enabled: boolean): UseEmployeeOverviewResult {
   const [overview, setOverview] = useState<EmployeeOverview | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0);
 

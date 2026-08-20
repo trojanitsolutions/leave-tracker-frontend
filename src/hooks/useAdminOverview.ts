@@ -14,7 +14,7 @@ interface UseAdminOverviewResult {
 /** Fetches the real admin overview — only when `enabled`. */
 export function useAdminOverview(enabled: boolean): UseAdminOverviewResult {
   const [data, setData] = useState<AdminOverview | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0);
 

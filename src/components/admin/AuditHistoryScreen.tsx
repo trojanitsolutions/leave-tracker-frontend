@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { LoadingState } from "@/components/ui/Spinner";
 import { useAuditHistory } from "@/hooks/useAuditHistory";
 import { formatDateTimeUpper } from "@/lib/date";
 import { AuditHistoryRow } from "@/types/domain";
@@ -70,7 +71,7 @@ export function AuditHistoryScreen() {
 
       <div className="rounded-[14px] border border-line bg-card px-[22px] py-[6px] pb-[18px] shadow-card">
         {isLoading ? (
-          <div className="py-[24px] text-center text-[12.5px] text-muted">Loading…</div>
+          <LoadingState label="Loading audit history…" />
         ) : error ? (
           <div className="py-[24px] text-center text-[12.5px] text-status-rejected-fg">{error}</div>
         ) : filtered.length === 0 ? (

@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { ChangePasswordCard } from "@/components/profile/ChangePasswordCard";
 import { Card } from "@/components/ui/Card";
+import { LoadingState } from "@/components/ui/Spinner";
 import { useAuth } from "@/context/AuthContext";
 import { useEmployeeOverview } from "@/hooks/useEmployeeOverview";
 import { useLeaveHistory } from "@/hooks/useLeaveHistory";
@@ -77,7 +78,7 @@ export function ProfileScreen() {
   }, [overview, entries]);
 
   if (isLoading || !overview) {
-    return <div className="text-[13px] text-muted">Loading your profile…</div>;
+    return <LoadingState label="Loading your profile…" />;
   }
 
   if (error) {

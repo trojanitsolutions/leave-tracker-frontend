@@ -1,21 +1,20 @@
 import Link from "next/link";
-import { MANAGER_OVERVIEW_STATS } from "@/data/mock";
 
 interface ManagerOverviewStatCardsProps {
-  teamSize?: number;
-  currentlyOnLeave?: number;
-  pendingApprovals?: number;
-  teamOutNextWeek?: number;
-  notReturnedAsExpected?: number;
+  teamSize: number;
+  currentlyOnLeave: number;
+  pendingApprovals: number;
+  teamOutNextWeek: number;
+  notReturnedAsExpected: number;
 }
 
 export function ManagerOverviewStatCards({
-  teamSize = MANAGER_OVERVIEW_STATS.teamSize,
-  currentlyOnLeave = MANAGER_OVERVIEW_STATS.currentlyOnLeave,
-  pendingApprovals = MANAGER_OVERVIEW_STATS.pendingApprovals,
-  teamOutNextWeek = MANAGER_OVERVIEW_STATS.teamOutNextWeek,
-  notReturnedAsExpected = MANAGER_OVERVIEW_STATS.notReturnedAsExpected,
-}: ManagerOverviewStatCardsProps = {}) {
+  teamSize,
+  currentlyOnLeave,
+  pendingApprovals,
+  teamOutNextWeek,
+  notReturnedAsExpected,
+}: ManagerOverviewStatCardsProps) {
   return (
     <div className="grid grid-cols-2 gap-[12px] sm:grid-cols-3 lg:grid-cols-5">
       <div className="flex-1 rounded-[12px] border border-line bg-card px-[16px] py-[14px]">

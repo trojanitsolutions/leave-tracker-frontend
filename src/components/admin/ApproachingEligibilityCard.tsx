@@ -1,12 +1,11 @@
 import { Card } from "@/components/ui/Card";
-import { ADMIN_ELIGIBILITY } from "@/data/mock";
 import { EligibilityItem } from "@/types/domain";
 
 interface ApproachingEligibilityCardProps {
-  items?: EligibilityItem[];
+  items: EligibilityItem[];
 }
 
-export function ApproachingEligibilityCard({ items = ADMIN_ELIGIBILITY }: ApproachingEligibilityCardProps = {}) {
+export function ApproachingEligibilityCard({ items }: ApproachingEligibilityCardProps) {
   return (
     <Card className="p-[18px]">
       <div className="text-[13.5px] font-semibold">Approaching eligibility</div>

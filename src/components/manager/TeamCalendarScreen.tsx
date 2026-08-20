@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { LoadingState } from "@/components/ui/Spinner";
 import { useTeamCalendar } from "@/hooks/useTeamCalendar";
 import { todayUTC } from "@/lib/date";
 import { TeamCalendarBar } from "@/types/domain";
@@ -83,7 +84,7 @@ export function TeamCalendarScreen() {
 
       <div className="overflow-x-auto rounded-[14px] border border-line bg-card shadow-card">
         {isLoading ? (
-          <div className="px-[20px] py-[24px] text-center text-[12.5px] text-muted">Loading…</div>
+          <LoadingState label="Loading the team calendar…" />
         ) : error ? (
           <div className="px-[20px] py-[24px] text-center text-[12.5px] text-status-rejected-fg">{error}</div>
         ) : (

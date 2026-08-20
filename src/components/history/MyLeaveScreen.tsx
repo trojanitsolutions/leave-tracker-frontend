@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { Card } from "@/components/ui/Card";
 import { StatusPill } from "@/components/ui/StatusPill";
+import { LoadingState } from "@/components/ui/Spinner";
 import { useAuth } from "@/context/AuthContext";
 import { useEmployeeOverview } from "@/hooks/useEmployeeOverview";
 import { useLeaveCycles } from "@/hooks/useLeaveCycles";
@@ -75,7 +76,7 @@ export function MyLeaveScreen() {
           Upcoming
         </div>
         {isLoading ? (
-          <div className="text-[12.5px] text-muted">Loading…</div>
+          <LoadingState label="Loading upcoming leave…" />
         ) : upcoming.length === 0 ? (
           <div className="text-[12.5px] text-muted">Nothing upcoming — apply for leave any time.</div>
         ) : (
@@ -109,7 +110,7 @@ export function MyLeaveScreen() {
           back-to-work date.
         </div>
         {isCyclesLoading ? (
-          <div className="text-[12.5px] text-muted">Loading…</div>
+          <LoadingState label="Loading cycle history…" />
         ) : cycles.length === 0 ? (
           <div className="text-[12.5px] text-muted">
             No confirmed cycles yet — this fills in once your first leave is recorded as returned.

@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { Card } from "@/components/ui/Card";
+import { LoadingState } from "@/components/ui/Spinner";
 import { ApiClientError } from "@/lib/api";
 import { useCompanySettings } from "@/hooks/useCompanySettings";
 
@@ -93,7 +94,7 @@ export function SettingsScreen() {
   }
 
   if (isLoading || !form) {
-    return <div className="text-[13px] text-muted">Loading settings…</div>;
+    return <LoadingState label="Loading settings…" />;
   }
 
   if (error) {

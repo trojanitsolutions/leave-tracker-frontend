@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { CheckList } from "@/components/apply/CheckList";
 import { Button } from "@/components/ui/Button";
+import { LoadingState } from "@/components/ui/Spinner";
 import { useAuth } from "@/context/AuthContext";
 import { useEmployeeOverview } from "@/hooks/useEmployeeOverview";
 import { useLeaveHistory } from "@/hooks/useLeaveHistory";
@@ -39,7 +40,7 @@ function formatFileSize(bytes: number): string {
 export function ApplyExtensionForm() {
   const router = useRouter();
   const { employee } = useAuth();
-  const { overview } = useEmployeeOverview(Boolean(employee));
+  const { overview, isLoading: isOverviewLoading } = useEmployeeOverview(Boolean(employee));
   const { entries: history, isLoading: isHistoryLoading } = useLeaveHistory(Boolean(employee));
   const fileInputRef = useRef<HTMLInputElement>(null);
   const requestIdRef = useRef(0);
@@ -153,7 +154,11 @@ export function ApplyExtensionForm() {
     }
   }
 
-  const notOnLeave = overview !== null && !currentLeave;
+  if (isOverviewLoading || overview === null) {
+    return <LoadingState label="Loading your leave details…" />;
+  }
+
+  const notOnLeave = !currentLeave;
 
   if (notOnLeave) {
     return (

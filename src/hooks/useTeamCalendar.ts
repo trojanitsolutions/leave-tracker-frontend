@@ -12,7 +12,7 @@ interface UseTeamCalendarResult {
 
 export function useTeamCalendar(enabled: boolean, month: string): UseTeamCalendarResult {
   const [data, setData] = useState<TeamCalendarResult | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {

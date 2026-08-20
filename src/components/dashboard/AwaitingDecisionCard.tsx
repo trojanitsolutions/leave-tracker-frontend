@@ -1,19 +1,18 @@
 import { Card } from "@/components/ui/Card";
-import { MANAGER_SUMMARY } from "@/data/mock";
 
 interface AwaitingDecisionCardProps {
-  managerName?: string;
-  managerRole?: string;
-  pendingCount?: number;
-  oldestPendingDays?: number;
+  managerName: string;
+  managerRole: string;
+  pendingCount: number;
+  oldestPendingDays: number;
 }
 
 export function AwaitingDecisionCard({
-  managerName = MANAGER_SUMMARY.managerName,
-  managerRole = MANAGER_SUMMARY.managerRole,
-  pendingCount = MANAGER_SUMMARY.pendingCount,
-  oldestPendingDays = MANAGER_SUMMARY.oldestPendingDays,
-}: AwaitingDecisionCardProps = {}) {
+  managerName,
+  managerRole,
+  pendingCount,
+  oldestPendingDays,
+}: AwaitingDecisionCardProps) {
   const initials = managerName
     .split(" ")
     .map((part) => part[0])

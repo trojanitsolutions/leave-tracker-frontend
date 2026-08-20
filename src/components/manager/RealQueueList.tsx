@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { QueueRow } from "@/components/manager/QueueRow";
+import { LoadingState } from "@/components/ui/Spinner";
 import { apiRequest, ApiClientError } from "@/lib/api";
 import { formatRangeLabelUpper } from "@/lib/date";
 import { ManagerQueueItemRecord, QueueDecisionStatus, QueueItem } from "@/types/domain";
@@ -82,7 +83,7 @@ export function RealQueueList({ queue, isLoading, error, onRefresh }: RealQueueL
   }
 
   if (isLoading) {
-    return <div className="text-[13px] text-muted">Loading your team&rsquo;s requests…</div>;
+    return <LoadingState label="Loading your team’s requests…" />;
   }
 
   if (error) {

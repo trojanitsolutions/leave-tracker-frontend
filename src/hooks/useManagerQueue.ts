@@ -14,7 +14,7 @@ interface UseManagerQueueResult {
 /** Fetches the real manager approval queue — only when `enabled`. */
 export function useManagerQueue(enabled: boolean): UseManagerQueueResult {
   const [data, setData] = useState<ManagerQueueResult | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0);
 

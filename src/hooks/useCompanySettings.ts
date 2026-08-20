@@ -14,7 +14,7 @@ interface UseCompanySettingsResult {
 
 export function useCompanySettings(enabled: boolean): UseCompanySettingsResult {
   const [data, setData] = useState<CompanySettings | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0);
 

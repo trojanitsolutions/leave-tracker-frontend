@@ -12,7 +12,7 @@ interface UseAdminCalendarResult {
 
 export function useAdminCalendar(enabled: boolean, month: string, department: string): UseAdminCalendarResult {
   const [data, setData] = useState<TeamCalendarResult | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {

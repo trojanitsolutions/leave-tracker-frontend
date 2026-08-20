@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { ActiveView, useRole } from "@/context/RoleContext";
-import { NAV_ITEMS } from "@/data/mock";
+import { NAV_ITEMS, ROLE_TAGS } from "@/data/navigation";
 
 const VIEW_TOGGLE_OPTIONS: { view: ActiveView; label: string }[] = [
   { view: "admin", label: "Admin" },
@@ -29,18 +29,19 @@ interface SidebarProps {
 export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { role, user, activeView, setActiveView } = useRole();
+  const { role, activeView, setActiveView } = useRole();
   const { employee, logout } = useAuth();
+
+  // AuthenticatedLayout only mounts this once a real session exists.
+  if (!employee) return null;
 
   const isAdmin = role === "admin";
   const navItems = isAdmin ? NAV_ITEMS[activeView === "employee" ? "employee" : "admin"] : NAV_ITEMS[role];
-  const roleTag = isAdmin && activeView === "employee" ? "EMP" : user.roleTag;
+  const roleTag = isAdmin && activeView === "employee" ? "EMP" : ROLE_TAGS[role];
 
-  // Real logged-in identity always wins over the mock "viewing as" persona,
-  // regardless of role — a real manager or admin sees their own name too.
-  const displayName = employee ? employee.fullName : user.fullName;
-  const displayCode = employee ? employee.employeeCode : user.employeeCode;
-  const displayInitials = employee ? getInitials(employee.fullName) : user.initials;
+  const displayName = employee.fullName;
+  const displayCode = employee.employeeCode;
+  const displayInitials = getInitials(employee.fullName);
 
   function handleSwitchView(view: ActiveView) {
     setActiveView(view);

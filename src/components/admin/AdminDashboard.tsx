@@ -4,7 +4,7 @@ import { AdminTopStats } from "@/components/admin/AdminTopStats";
 import { ApproachingEligibilityCard } from "@/components/admin/ApproachingEligibilityCard";
 import { BackToWorkWatchlist } from "@/components/admin/BackToWorkWatchlist";
 import { DeptLoadCard } from "@/components/admin/DeptLoadCard";
-import { useAuth } from "@/context/AuthContext";
+import { LoadingState } from "@/components/ui/Spinner";
 import { useAdminOverview } from "@/hooks/useAdminOverview";
 import { formatDayMonthUpper, formatShortDate, parseISODateOnly } from "@/lib/date";
 import {
@@ -58,15 +58,10 @@ function mapDepartmentLoad(record: AdminDepartmentLoadRecord): DepartmentLoad {
 }
 
 export function AdminDashboard() {
-  const { employee } = useAuth();
-  const isRealAdmin = employee?.role === "admin";
-  const { data, isLoading, error } = useAdminOverview(isRealAdmin);
+  // Only mounted by DashboardPage once the real session's role is confirmed "admin".
+  const { data, isLoading, error } = useAdminOverview(true);
 
-  if (isRealAdmin && isLoading) {
-    return <div className="text-[13px] text-muted">Loading company overview…</div>;
-  }
-
-  if (isRealAdmin && error) {
+  if (error) {
     return (
       <div className="rounded-[12px] border border-status-rejected-fg/20 bg-status-rejected-bg px-4 py-3 text-[13px] text-status-rejected-fg">
         Couldn&rsquo;t load the admin overview: {error}
@@ -74,31 +69,18 @@ export function AdminDashboard() {
     );
   }
 
-  if (isRealAdmin && data) {
-    return (
-      <div className="flex w-full flex-col gap-[16px]">
-        <AdminTopStats {...data.stats} pendingUnpaidExtensions={0} pendingApproachingEligibility={0} />
-        <div className="grid items-start gap-[16px] lg:grid-cols-[1.6fr_1fr]">
-          <BackToWorkWatchlist rows={data.backToWorkWatchlist.map(mapBackToWorkRow)} />
-          <div className="flex flex-col gap-[16px]">
-            <ApproachingEligibilityCard items={data.approachingEligibility.map(mapEligibilityItem)} />
-            <DeptLoadCard departments={data.departmentLoad.map(mapDepartmentLoad)} />
-          </div>
-        </div>
-      </div>
-    );
+  if (isLoading || !data) {
+    return <LoadingState label="Loading company overview…" />;
   }
 
-  // Not authenticated as a real admin (or previewing via "viewing as") —
-  // original mocked experience, unchanged.
   return (
     <div className="flex w-full flex-col gap-[16px]">
-      <AdminTopStats />
+      <AdminTopStats {...data.stats} pendingUnpaidExtensions={0} pendingApproachingEligibility={0} />
       <div className="grid items-start gap-[16px] lg:grid-cols-[1.6fr_1fr]">
-        <BackToWorkWatchlist />
+        <BackToWorkWatchlist rows={data.backToWorkWatchlist.map(mapBackToWorkRow)} />
         <div className="flex flex-col gap-[16px]">
-          <ApproachingEligibilityCard />
-          <DeptLoadCard />
+          <ApproachingEligibilityCard items={data.approachingEligibility.map(mapEligibilityItem)} />
+          <DeptLoadCard departments={data.departmentLoad.map(mapDepartmentLoad)} />
         </div>
       </div>
     </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { ADMIN_BACK_TO_WORK_ROWS } from "@/data/mock";
 import { BackToWorkRow } from "@/types/domain";
 
 const STATUS_STYLES: Record<BackToWorkRow["status"], string> = {
@@ -13,10 +12,10 @@ const STATUS_STYLES: Record<BackToWorkRow["status"], string> = {
 const GRID_COLS = "grid-cols-[1.4fr_1fr_1fr_1.05fr]";
 
 interface BackToWorkWatchlistProps {
-  rows?: BackToWorkRow[];
+  rows: BackToWorkRow[];
 }
 
-export function BackToWorkWatchlist({ rows: rowsProp = ADMIN_BACK_TO_WORK_ROWS }: BackToWorkWatchlistProps = {}) {
+export function BackToWorkWatchlist({ rows: rowsProp }: BackToWorkWatchlistProps) {
   const [filter, setFilter] = useState<"exceptions" | "all">("exceptions");
   const rows = rowsProp.filter((row) => filter === "all" || row.status === "Overdue");
 

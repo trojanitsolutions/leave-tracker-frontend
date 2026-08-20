@@ -1,29 +1,28 @@
 import Link from "next/link";
-import { ADMIN_STATS } from "@/data/mock";
 
 interface AdminTopStatsProps {
-  totalEmployees?: number;
-  departmentCount?: number;
-  currentlyOnLeave?: number;
-  upcomingThisMonth?: number;
-  notReturnedAsExpected?: number;
-  pendingApprovals?: number;
-  pendingOver3DaysOld?: number;
-  pendingUnpaidExtensions?: number;
-  pendingApproachingEligibility?: number;
+  totalEmployees: number;
+  departmentCount: number;
+  currentlyOnLeave: number;
+  upcomingThisMonth: number;
+  notReturnedAsExpected: number;
+  pendingApprovals: number;
+  pendingOver3DaysOld: number;
+  pendingUnpaidExtensions: number;
+  pendingApproachingEligibility: number;
 }
 
 export function AdminTopStats({
-  totalEmployees = ADMIN_STATS.totalEmployees,
-  departmentCount = ADMIN_STATS.departmentCount,
-  currentlyOnLeave = ADMIN_STATS.currentlyOnLeave,
-  upcomingThisMonth = ADMIN_STATS.upcomingThisMonth,
-  notReturnedAsExpected = ADMIN_STATS.notReturnedAsExpected,
-  pendingApprovals = ADMIN_STATS.pendingApprovals,
-  pendingOver3DaysOld = ADMIN_STATS.pendingOver3DaysOld,
-  pendingUnpaidExtensions = ADMIN_STATS.pendingUnpaidExtensions,
-  pendingApproachingEligibility = ADMIN_STATS.pendingApproachingEligibility,
-}: AdminTopStatsProps = {}) {
+  totalEmployees,
+  departmentCount,
+  currentlyOnLeave,
+  upcomingThisMonth,
+  notReturnedAsExpected,
+  pendingApprovals,
+  pendingOver3DaysOld,
+  pendingUnpaidExtensions,
+  pendingApproachingEligibility,
+}: AdminTopStatsProps) {
   return (
     <div className="grid gap-[14px] lg:grid-cols-3">
       <div className="relative overflow-hidden rounded-[14px] bg-deep p-[18px_20px] text-white">

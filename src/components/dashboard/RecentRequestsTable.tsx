@@ -1,16 +1,15 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { StatusPill } from "@/components/ui/StatusPill";
-import { EMPLOYEE_RECENT_REQUESTS } from "@/data/mock";
 import { RecentLeaveRow } from "@/types/domain";
 
 const GRID_COLS = "grid-cols-[1.4fr_1.5fr_0.5fr_1fr_0.9fr]";
 
 interface RecentRequestsTableProps {
-  rows?: RecentLeaveRow[];
+  rows: RecentLeaveRow[];
 }
 
-export function RecentRequestsTable({ rows = EMPLOYEE_RECENT_REQUESTS }: RecentRequestsTableProps = {}) {
+export function RecentRequestsTable({ rows }: RecentRequestsTableProps) {
   return (
     <Card className="overflow-x-auto">
       <div className="flex items-center justify-between px-[20px] py-[15px] pb-[13px]">

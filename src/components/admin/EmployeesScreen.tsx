@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { EmployeeFormModal } from "@/components/admin/EmployeeFormModal";
+import { LoadingState } from "@/components/ui/Spinner";
 import { useEmployeeDirectory } from "@/hooks/useEmployeeDirectory";
 import { formatShortDate } from "@/lib/date";
 import { EmployeeDirectoryRow } from "@/types/domain";
@@ -117,7 +118,7 @@ export function EmployeesScreen() {
         </div>
 
         {isLoading ? (
-          <div className="px-[20px] py-[24px] text-center text-[12.5px] text-muted">Loading…</div>
+          <LoadingState label="Loading employees…" />
         ) : error ? (
           <div className="px-[20px] py-[24px] text-center text-[12.5px] text-status-rejected-fg">{error}</div>
         ) : rows.length === 0 ? (

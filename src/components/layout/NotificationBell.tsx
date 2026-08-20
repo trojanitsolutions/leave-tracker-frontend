@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { LoadingState } from "@/components/ui/Spinner";
 import { useAuth } from "@/context/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
 import { formatDateTimeUpper } from "@/lib/date";
@@ -64,7 +65,7 @@ export function NotificationBell() {
 
           <div className="max-h-[360px] overflow-y-auto">
             {isLoading ? (
-              <div className="px-[16px] py-[24px] text-center text-[12.5px] text-muted">Loading…</div>
+              <LoadingState label="Loading notifications…" />
             ) : error ? (
               <div className="px-[16px] py-[24px] text-center text-[12.5px] text-status-rejected-fg">
                 {error}

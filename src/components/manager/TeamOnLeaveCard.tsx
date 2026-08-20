@@ -1,12 +1,11 @@
 import { Card } from "@/components/ui/Card";
-import { MANAGER_ON_LEAVE } from "@/data/mock";
 import { OnLeaveRow } from "@/types/domain";
 
 interface TeamOnLeaveCardProps {
-  rows?: OnLeaveRow[];
+  rows: OnLeaveRow[];
 }
 
-export function TeamOnLeaveCard({ rows = MANAGER_ON_LEAVE }: TeamOnLeaveCardProps = {}) {
+export function TeamOnLeaveCard({ rows }: TeamOnLeaveCardProps) {
   return (
     <Card className="p-[18px]">
       <div className="mb-[14px] text-[13.5px] font-semibold">Currently on leave</div>

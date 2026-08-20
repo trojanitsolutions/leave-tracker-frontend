@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { LoadingState } from "@/components/ui/Spinner";
 import { useAdminCalendar } from "@/hooks/useAdminCalendar";
 import { useEmployeeDirectory } from "@/hooks/useEmployeeDirectory";
 import { todayUTC } from "@/lib/date";
@@ -103,7 +104,7 @@ export function AdminCalendarScreen() {
 
       <div className="overflow-x-auto rounded-[14px] border border-line bg-card shadow-card">
         {isLoading ? (
-          <div className="px-[20px] py-[24px] text-center text-[12.5px] text-muted">Loading…</div>
+          <LoadingState label="Loading the calendar…" />
         ) : error ? (
           <div className="px-[20px] py-[24px] text-center text-[12.5px] text-status-rejected-fg">{error}</div>
         ) : (

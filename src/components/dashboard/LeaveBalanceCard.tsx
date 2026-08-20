@@ -1,5 +1,4 @@
 import { Card } from "@/components/ui/Card";
-import { EMPLOYEE_LEAVE_BALANCE } from "@/data/mock";
 
 const LEGEND = [
   { label: "Entitlement", swatchClass: "bg-[#C9CDD2]", key: "entitlement" as const },
@@ -9,28 +8,28 @@ const LEGEND = [
 ];
 
 interface LeaveBalanceCardProps {
-  isEligible?: boolean;
-  cycleLabel?: string;
-  entitlement?: number;
-  used?: number;
-  pending?: number;
-  remaining?: number;
+  isEligible: boolean;
+  cycleLabel: string;
+  entitlement: number;
+  used: number;
+  pending: number;
+  remaining: number;
   /** Only known once a leave/extension is actually in progress — its real back-to-work date. Null otherwise. */
-  nextCycleStartsOn?: string | null;
+  nextCycleStartsOn: string | null;
   /** The 13th-month eligibility date, shown instead of a cycle range before it arrives. */
-  eligibleFromLabel?: string;
+  eligibleFromLabel: string;
 }
 
 export function LeaveBalanceCard({
-  isEligible = true,
-  cycleLabel = EMPLOYEE_LEAVE_BALANCE.cycleLabel,
-  entitlement = EMPLOYEE_LEAVE_BALANCE.entitlement,
-  used = EMPLOYEE_LEAVE_BALANCE.used,
-  pending = EMPLOYEE_LEAVE_BALANCE.pending,
-  remaining = EMPLOYEE_LEAVE_BALANCE.remaining,
-  nextCycleStartsOn = EMPLOYEE_LEAVE_BALANCE.nextEligibility,
+  isEligible,
+  cycleLabel,
+  entitlement,
+  used,
+  pending,
+  remaining,
+  nextCycleStartsOn,
   eligibleFromLabel,
-}: LeaveBalanceCardProps = {}) {
+}: LeaveBalanceCardProps) {
   const balanceValues: Record<"entitlement" | "used" | "pending" | "remaining", number> = {
     entitlement,
     used,

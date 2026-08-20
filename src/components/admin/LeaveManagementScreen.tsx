@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { CorrectRecordModal } from "@/components/admin/CorrectRecordModal";
 import { RecordBackToWorkModal } from "@/components/admin/RecordBackToWorkModal";
+import { LoadingState } from "@/components/ui/Spinner";
 import { useAdminLeaveRecords } from "@/hooks/useAdminLeaveRecords";
 import { useEmployeeDirectory } from "@/hooks/useEmployeeDirectory";
 import { formatShortDate, parseISODateOnly, todayUTC } from "@/lib/date";
@@ -117,7 +118,7 @@ export function LeaveManagementScreen() {
         </div>
 
         {isLoading ? (
-          <div className="px-[20px] py-[24px] text-center text-[12.5px] text-muted">Loading…</div>
+          <LoadingState label="Loading leave records…" />
         ) : error ? (
           <div className="px-[20px] py-[24px] text-center text-[12.5px] text-status-rejected-fg">{error}</div>
         ) : rows.length === 0 ? (
