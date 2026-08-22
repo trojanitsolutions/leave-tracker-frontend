@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { LoadingState } from "@/components/ui/Spinner";
 import { useAdminReports } from "@/hooks/useAdminReports";
+import { getLeaveTypeStyle } from "@/lib/leaveTypeStyles";
 import { AdminReportsResult } from "@/types/domain";
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -35,7 +36,7 @@ function leaveTypeSplitNote(
   if (total === 0 || totalHeadcount === 0) return null;
   const dominant = [...leaveTypeSplit].sort((a, b) => b.days - a.days)[0];
   const perEmployee = Math.round((total / totalHeadcount) * 10) / 10;
-  return `${dominant.type} makes up ${dominant.percent}% of all leave taken this cycle — an average of ${perEmployee} days per employee across both types.`;
+  return `${dominant.leaveTypeName} makes up ${dominant.percent}% of all leave taken this cycle — an average of ${perEmployee} days per employee across all leave types.`;
 }
 
 export function ReportsScreen() {
@@ -207,22 +208,22 @@ export function ReportsScreen() {
           <div className="mt-[16px] flex h-[14px] overflow-hidden rounded-[7px]">
             {data.leaveTypeSplit.map((t) => (
               <div
-                key={t.type}
+                key={t.leaveTypeId}
                 style={{
                   width: `${t.percent}%`,
-                  background: t.type === "Annual Leave" ? "var(--color-primary)" : "#7C5CD6",
+                  background: getLeaveTypeStyle(t.leaveTypeId).swatch,
                 }}
               />
             ))}
           </div>
           <div className="mt-[16px] flex flex-col gap-[11px]">
             {data.leaveTypeSplit.map((t) => (
-              <div key={t.type} className="flex items-center gap-[9px]">
+              <div key={t.leaveTypeId} className="flex items-center gap-[9px]">
                 <span
                   className="h-[9px] w-[9px] flex-none rounded-[3px]"
-                  style={{ background: t.type === "Annual Leave" ? "var(--color-primary)" : "#7C5CD6" }}
+                  style={{ background: getLeaveTypeStyle(t.leaveTypeId).swatch }}
                 />
-                <span className="text-[12.5px] text-[#4E5359]">{t.type}</span>
+                <span className="text-[12.5px] text-[#4E5359]">{t.leaveTypeName}</span>
                 <span className="ml-auto text-[12.5px] font-semibold tabular-nums">{t.days} days</span>
                 <span className="w-[44px] text-right font-mono text-[10.5px] text-muted">{t.percent}%</span>
               </div>

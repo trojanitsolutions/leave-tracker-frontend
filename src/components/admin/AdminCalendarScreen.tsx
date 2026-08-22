@@ -4,8 +4,10 @@ import { useMemo, useState } from "react";
 import { LoadingState } from "@/components/ui/Spinner";
 import { useAdminCalendar } from "@/hooks/useAdminCalendar";
 import { useEmployeeDirectory } from "@/hooks/useEmployeeDirectory";
+import { useLeaveTypes } from "@/hooks/useLeaveTypes";
+import { getLeaveTypeStyle } from "@/lib/leaveTypeStyles";
 import { todayUTC } from "@/lib/date";
-import { TeamCalendarBar } from "@/types/domain";
+import { LeaveTypeSummary, TeamCalendarBar } from "@/types/domain";
 
 function getInitials(fullName: string): string {
   return fullName
@@ -17,23 +19,26 @@ function getInitials(fullName: string): string {
 }
 
 function barStyle(bar: TeamCalendarBar): string {
-  if (bar.type === "Unpaid Extension") {
-    return bar.status === "approved" ? "bg-[#7C5CD6] text-white" : "bg-[#EDE9FB] text-[#7C5CD6]";
-  }
-  return bar.status === "approved" ? "bg-primary text-white" : "bg-status-pending-bg text-status-pending-fg";
+  const style = getLeaveTypeStyle(bar.leaveTypeId);
+  return bar.status === "approved" ? style.barApproved : style.barPending;
 }
 
-const LEGEND = [
-  { label: "Annual Leave · approved", swatch: "bg-primary" },
-  { label: "Annual Leave · pending", swatch: "bg-status-pending-bg" },
-  { label: "Extension · approved", swatch: "bg-[#7C5CD6]" },
-  { label: "Extension · pending", swatch: "bg-[#EDE9FB]" },
-];
+function buildLegend(leaveTypes: LeaveTypeSummary[]): { label: string; swatch: string }[] {
+  return leaveTypes.flatMap((t) => {
+    const style = getLeaveTypeStyle(t.id);
+    return [
+      { label: `${t.name} · approved`, swatch: style.barApproved.split(" ")[0] },
+      { label: `${t.name} · pending`, swatch: style.barPending.split(" ")[0] },
+    ];
+  });
+}
 
 export function AdminCalendarScreen() {
   const today = todayUTC();
   const [monthOffset, setMonthOffset] = useState(0);
   const [department, setDepartment] = useState("");
+  const { types: leaveTypes } = useLeaveTypes();
+  const legend = useMemo(() => buildLegend(leaveTypes), [leaveTypes]);
 
   const { rows: directoryRows } = useEmployeeDirectory({});
   const departments = useMemo(
@@ -93,7 +98,7 @@ export function AdminCalendarScreen() {
           ))}
         </select>
         <div className="ml-auto flex flex-wrap gap-4">
-          {LEGEND.map((item) => (
+          {legend.map((item) => (
             <div key={item.label} className="flex items-center gap-[7px] text-[11.5px] text-[#4E5359]">
               <span className={`inline-block h-[9px] w-[16px] flex-none rounded-[3px] ${item.swatch}`} />
               {item.label}
@@ -176,7 +181,7 @@ export function AdminCalendarScreen() {
                           className={`z-10 my-auto flex h-[22px] items-center overflow-hidden rounded-[6px] px-2 text-[10.5px] font-semibold whitespace-nowrap ${barStyle(bar)}`}
                           style={{ gridColumn: `${startDay} / ${endDay + 1}`, gridRow: 1 }}
                         >
-                          {endDay - startDay >= 2 ? bar.type : ""}
+                          {endDay - startDay >= 2 ? bar.leaveTypeName : ""}
                         </div>
                       );
                     })}

@@ -87,7 +87,7 @@ export function LeaveHistoryScreen() {
                 {entry.kind === "extension" ? (
                   <span className="font-mono text-[13px] text-[#7C5CD6]">↳</span>
                 ) : null}
-                {entry.kind === "extension" ? "Unpaid Extension" : "Annual Leave"}
+                {entry.leaveTypeName}
               </div>
               <div className="font-mono text-[11.5px] text-[#4E5359]">
                 {formatRangeLabelUpper(entry.startDate, entry.endDate)}

@@ -21,7 +21,7 @@ export function TeamOnLeaveCard({ rows }: TeamOnLeaveCardProps) {
               <div className="min-w-0 flex-1">
                 <div className="truncate text-[12.5px] font-medium">{row.name}</div>
                 <div className="text-[10.5px] text-muted">
-                  {row.department} · {row.type}
+                  {row.department} · {row.leaveTypeName}
                 </div>
               </div>
               <div className="text-right">

@@ -8,9 +8,11 @@ import { LoadingState } from "@/components/ui/Spinner";
 import { useAuth } from "@/context/AuthContext";
 import { useEmployeeOverview } from "@/hooks/useEmployeeOverview";
 import { useLeaveHistory } from "@/hooks/useLeaveHistory";
-import { apiRequest, ApiClientError } from "@/lib/api";
+import { apiRequest, uploadAttachment, ApiClientError } from "@/lib/api";
 import { formatRangeLabelUpper, formatShortDate, parseISODateOnly, todayUTC } from "@/lib/date";
 import { ExtensionPrecheckResult, LeaveDecisionStatus } from "@/types/domain";
+
+const MAX_ATTACHMENT_SIZE_BYTES = 5 * 1024 * 1024;
 
 const EXTENSION_STATUS_PILL: Record<LeaveDecisionStatus, string> = {
   pending: "bg-status-pending-bg text-status-pending-fg",
@@ -49,7 +51,8 @@ export function ApplyExtensionForm() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [reason, setReason] = useState("");
-  const [attachment, setAttachment] = useState<{ name: string; size: number } | null>(null);
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
+  const [attachmentError, setAttachmentError] = useState<string | null>(null);
 
   const [precheck, setPrecheck] = useState<ExtensionPrecheckResult | null>(null);
   const [isCalcing, setIsCalcing] = useState(false);
@@ -125,8 +128,15 @@ export function ApplyExtensionForm() {
   }, [startDate, endDate, hasDateRange]);
 
   function handleAttachmentChange(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    setAttachment(file ? { name: file.name, size: file.size } : null);
+    const file = event.target.files?.[0] ?? null;
+    if (file && file.size > MAX_ATTACHMENT_SIZE_BYTES) {
+      setAttachmentError("File is too large — the limit is 5 MB.");
+      setAttachmentFile(null);
+      event.target.value = "";
+      return;
+    }
+    setAttachmentError(null);
+    setAttachmentFile(file);
   }
 
   async function handleSubmit(event: FormEvent) {
@@ -140,9 +150,16 @@ export function ApplyExtensionForm() {
 
     setIsSubmitting(true);
     try {
+      let attachmentName: string | null = null;
+      let attachmentUrl: string | null = null;
+      if (attachmentFile) {
+        const uploaded = await uploadAttachment(attachmentFile);
+        attachmentName = uploaded.name;
+        attachmentUrl = uploaded.url;
+      }
       await apiRequest("/extensions", {
         method: "POST",
-        body: { startDate, endDate, reason: reason.trim() || null, attachmentName: attachment?.name ?? null },
+        body: { startDate, endDate, reason: reason.trim() || null, attachmentName, attachmentUrl },
       });
       router.push("/dashboard");
     } catch (err) {
@@ -396,16 +413,16 @@ export function ApplyExtensionForm() {
             onChange={handleAttachmentChange}
             className="hidden"
           />
-          {attachment ? (
+          {attachmentFile ? (
             <div className="inline-flex items-center gap-[10px] rounded-[9px] border border-line bg-card px-[13px] py-[9px] text-[12.5px]">
               <span className="rounded-[4px] bg-surface px-[5px] py-[2px] font-mono text-[10px] text-muted">
-                {attachment.name.split(".").pop()?.toUpperCase() ?? "FILE"}
+                {attachmentFile.name.split(".").pop()?.toUpperCase() ?? "FILE"}
               </span>
-              {attachment.name}
-              <span className="text-[11.5px] text-muted">{formatFileSize(attachment.size)}</span>
+              {attachmentFile.name}
+              <span className="text-[11.5px] text-muted">{formatFileSize(attachmentFile.size)}</span>
               <button
                 type="button"
-                onClick={() => setAttachment(null)}
+                onClick={() => setAttachmentFile(null)}
                 aria-label="Remove attachment"
                 className="pl-[4px] text-[11.5px] text-muted-2 hover:text-ink"
               >
@@ -427,6 +444,9 @@ export function ApplyExtensionForm() {
               </div>
             </button>
           )}
+          {attachmentError ? (
+            <div className="mt-[6px] text-[12px] text-status-rejected-fg">{attachmentError}</div>
+          ) : null}
         </div>
 
         {submitError ? (
@@ -437,7 +457,11 @@ export function ApplyExtensionForm() {
 
         <div className="flex items-center gap-[10px] border-t border-line pt-[18px]">
           <Button type="submit" variant="primary" disabled={isSubmitting || !effectivePrecheck?.canSubmit}>
-            {isSubmitting ? "Submitting…" : "Submit extension request"}
+            {isSubmitting
+              ? attachmentFile
+                ? "Uploading & submitting…"
+                : "Submitting…"
+              : "Submit extension request"}
           </Button>
           <Button type="button" variant="secondary" onClick={() => router.push("/dashboard")}>
             Cancel

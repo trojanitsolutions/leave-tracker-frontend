@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { LeaveTypesScreen } from "@/components/admin/LeaveTypesScreen";
 import { Card } from "@/components/ui/Card";
 import { LoadingState } from "@/components/ui/Spinner";
 import { ApiClientError } from "@/lib/api";
@@ -129,47 +130,61 @@ export function SettingsScreen() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-[16px]">
-      <div className="grid gap-[16px] lg:grid-cols-2">
+    <div className="flex flex-col gap-[16px]">
+      <form onSubmit={handleSubmit}>
         <Card className="p-[24px]">
-          <div className="mb-[18px]">
-            <div className="text-[15px] font-semibold">Entitlement &amp; cycle rules</div>
-            <div className="mt-[4px] text-[12.5px] leading-relaxed text-muted">
-              Company-wide defaults that drive eligibility and leave-cycle calculations across the
-              portal.
-            </div>
-          </div>
-          {renderFields(ENTITLEMENT_FIELDS)}
-        </Card>
+          <div className="grid gap-[16px] lg:grid-cols-2">
+            <Card className="p-[20px]">
+              <div className="mb-[18px]">
+                <div className="text-[15px] font-semibold">Entitlement &amp; cycle rules</div>
+                <div className="mt-[4px] text-[12.5px] leading-relaxed text-muted">
+                  Company-wide defaults that drive eligibility and leave-cycle calculations across
+                  the portal.
+                </div>
+              </div>
+              {renderFields(ENTITLEMENT_FIELDS)}
+            </Card>
 
-        <Card className="p-[24px]">
-          <div className="mb-[18px]">
-            <div className="text-[15px] font-semibold">Dashboard alert thresholds</div>
-            <div className="mt-[4px] text-[12.5px] leading-relaxed text-muted">
-              Controls how proactively the admin dashboard surfaces upcoming returns, eligibility
-              dates, and stale approvals.
-            </div>
+            <Card className="p-[20px]">
+              <div className="mb-[18px]">
+                <div className="text-[15px] font-semibold">Dashboard alert thresholds</div>
+                <div className="mt-[4px] text-[12.5px] leading-relaxed text-muted">
+                  Controls how proactively the admin dashboard surfaces upcoming returns, eligibility
+                  dates, and stale approvals.
+                </div>
+              </div>
+              {renderFields(ALERT_FIELDS)}
+            </Card>
           </div>
-          {renderFields(ALERT_FIELDS)}
-        </Card>
-      </div>
 
-      {saveError ? (
-        <div className="rounded-[10px] border border-status-rejected-fg/25 bg-status-rejected-bg/40 px-[13px] py-[10px] text-[12.5px] text-status-rejected-fg">
-          {saveError}
+          {saveError ? (
+            <div className="mt-[18px] rounded-[10px] border border-status-rejected-fg/25 bg-status-rejected-bg/40 px-[13px] py-[10px] text-[12.5px] text-status-rejected-fg">
+              {saveError}
+            </div>
+          ) : null}
+
+          <div className="mt-[20px] flex items-center gap-[10px] border-t border-line pt-[18px]">
+            {savedAt ? <div className="text-[11.5px] text-muted">Saved.</div> : null}
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="ml-auto rounded-[8px] border-0 bg-primary px-4 py-2 text-[12.5px] font-semibold text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {isSaving ? "Saving…" : "Save changes"}
+            </button>
+          </div>
+        </Card>
+      </form>
+
+      <Card className="p-[24px]">
+        <div className="mb-[18px]">
+          <div className="text-[15px] font-semibold">Leave types</div>
+          <div className="mt-[4px] text-[12.5px] leading-relaxed text-muted">
+            Add, edit, deactivate, or delete the leave types employees can apply for.
+          </div>
         </div>
-      ) : null}
-
-      <Card className="flex items-center gap-[10px] px-[24px] py-[16px]">
-        {savedAt ? <div className="text-[11.5px] text-muted">Saved.</div> : null}
-        <button
-          type="submit"
-          disabled={isSaving}
-          className="ml-auto rounded-[8px] border-0 bg-primary px-4 py-2 text-[12.5px] font-semibold text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          {isSaving ? "Saving…" : "Save changes"}
-        </button>
+        <LeaveTypesScreen />
       </Card>
-    </form>
+    </div>
   );
 }

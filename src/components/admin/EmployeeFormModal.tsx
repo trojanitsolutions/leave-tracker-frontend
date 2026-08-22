@@ -4,9 +4,11 @@ import { FormEvent, useEffect, useState } from "react";
 import { apiRequest, ApiClientError } from "@/lib/api";
 import { CompanySettings, EmployeeDirectoryRow, EmployeeProfile, UserRole } from "@/types/domain";
 
+// Manager is deliberately absent — manager accounts are provisioned separately (see
+// backend's create-manager script), never created or promoted-into from this form. Admin's
+// only manager-related job is assigning an existing one as someone's reporting manager below.
 const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
   { value: "employee", label: "Employee" },
-  { value: "manager", label: "Manager" },
   { value: "admin", label: "Admin / HR" },
 ];
 
@@ -261,17 +263,28 @@ export function EmployeeFormModal({ managers, editing, onClose, onSaved }: Emplo
             </div>
             <div>
               <div className="mb-[6px] text-[12px] font-medium">Role</div>
-              <select
-                value={form.role}
-                onChange={(e) => update("role", e.target.value as UserRole)}
-                className="w-full rounded-[9px] border border-line bg-card px-3 py-[9px] text-[13px] transition-colors hover:border-line-hover"
-              >
-                {ROLE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              {form.role === "manager" ? (
+                <>
+                  <div className="w-full rounded-[9px] border border-line bg-surface px-3 py-[9px] text-[13px] text-muted">
+                    Manager
+                  </div>
+                  <div className="mt-[6px] text-[11px] text-muted">
+                    Manager accounts are provisioned separately and can&rsquo;t be changed here.
+                  </div>
+                </>
+              ) : (
+                <select
+                  value={form.role}
+                  onChange={(e) => update("role", e.target.value as UserRole)}
+                  className="w-full rounded-[9px] border border-line bg-card px-3 py-[9px] text-[13px] transition-colors hover:border-line-hover"
+                >
+                  {ROLE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
             <div>
               <div className="mb-[6px] text-[12px] font-medium">Joining date</div>

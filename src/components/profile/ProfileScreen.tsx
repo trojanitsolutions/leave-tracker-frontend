@@ -7,6 +7,7 @@ import { LoadingState } from "@/components/ui/Spinner";
 import { useAuth } from "@/context/AuthContext";
 import { useEmployeeOverview } from "@/hooks/useEmployeeOverview";
 import { useLeaveHistory } from "@/hooks/useLeaveHistory";
+import { useLeaveTypes } from "@/hooks/useLeaveTypes";
 import { formatShortDate, parseISODateOnly, todayUTC } from "@/lib/date";
 import { EmployeeLeaveStatus, UserRole } from "@/types/domain";
 
@@ -16,11 +17,18 @@ const ROLE_LABELS: Record<UserRole, string> = {
   admin: "Admin / HR",
 };
 
-const STATUS_PILL: Record<EmployeeLeaveStatus, { label: string; classes: string }> = {
-  not_on_leave: { label: "Not on leave", classes: "bg-status-cancelled-bg text-status-cancelled-fg" },
-  on_annual_leave: { label: "On Annual Leave", classes: "bg-[#EAF6F9] text-[#08768A]" },
-  on_unpaid_extension: { label: "On Unpaid Extension", classes: "bg-[#EDE9FB] text-[#7C5CD6]" },
-  returned: { label: "Returned", classes: "bg-status-approved-bg text-status-approved-fg" },
+const STATUS_PILL_CLASSES: Record<EmployeeLeaveStatus, string> = {
+  not_on_leave: "bg-status-cancelled-bg text-status-cancelled-fg",
+  on_leave: "bg-[#EAF6F9] text-[#08768A]",
+  on_unpaid_extension: "bg-[#EDE9FB] text-[#7C5CD6]",
+  returned: "bg-status-approved-bg text-status-approved-fg",
+};
+
+// on_leave's label isn't static — it's whichever leave type is actually in progress, from overview.currentLeaveTypeName.
+const STATUS_LABEL: Partial<Record<EmployeeLeaveStatus, string>> = {
+  not_on_leave: "Not on leave",
+  on_unpaid_extension: "On Unpaid Extension",
+  returned: "Returned",
 };
 
 function getInitials(fullName: string): string {
@@ -61,12 +69,15 @@ export function ProfileScreen() {
   const isSignedIn = Boolean(employee);
   const { overview, isLoading, error } = useEmployeeOverview(isSignedIn);
   const { entries } = useLeaveHistory(isSignedIn);
+  const { types: leaveTypes } = useLeaveTypes();
+
+  const unpaidTypeIds = useMemo(() => new Set(leaveTypes.filter((t) => !t.isPaid).map((t) => t.id)), [leaveTypes]);
 
   const unpaidThisCycle = useMemo(() => {
     if (!overview) return { pending: 0, approved: 0 };
     const { cycleStart, cycleEnd } = overview.balance;
     return entries
-      .filter((e) => e.kind === "extension" && e.startDate >= cycleStart && e.startDate <= cycleEnd)
+      .filter((e) => unpaidTypeIds.has(e.leaveTypeId) && e.startDate >= cycleStart && e.startDate <= cycleEnd)
       .reduce(
         (acc, e) => {
           if (e.status === "pending") acc.pending += e.numberOfDays;
@@ -75,7 +86,7 @@ export function ProfileScreen() {
         },
         { pending: 0, approved: 0 },
       );
-  }, [overview, entries]);
+  }, [overview, entries, unpaidTypeIds]);
 
   if (isLoading || !overview) {
     return <LoadingState label="Loading your profile…" />;
@@ -89,8 +100,9 @@ export function ProfileScreen() {
     );
   }
 
-  const { employee: profile, managerName, status, balance } = overview;
-  const pill = STATUS_PILL[status];
+  const { employee: profile, managerName, status, balance, currentLeaveTypeName } = overview;
+  const pillLabel = status === "on_leave" ? currentLeaveTypeName ?? "On Leave" : STATUS_LABEL[status] ?? status;
+  const pillClasses = STATUS_PILL_CLASSES[status];
   const totalUnpaid = unpaidThisCycle.pending + unpaidThisCycle.approved;
 
   return (
@@ -108,10 +120,10 @@ export function ProfileScreen() {
             </div>
           </div>
           <span
-            className={`ml-auto inline-flex flex-none items-center gap-[6px] rounded-full px-[11px] py-[4px] text-[11.5px] font-semibold ${pill.classes}`}
+            className={`ml-auto inline-flex flex-none items-center gap-[6px] rounded-full px-[11px] py-[4px] text-[11.5px] font-semibold ${pillClasses}`}
           >
             <span className="h-[6px] w-[6px] rounded-full bg-current" />
-            {pill.label}
+            {pillLabel}
           </span>
         </div>
 

@@ -9,6 +9,7 @@ export interface AdminLeaveRecordFilter {
   department?: string;
   managerId?: number;
   kind?: "leave" | "extension";
+  leaveTypeId?: number;
   status?: LeaveDecisionStatus;
   from?: string;
   to?: string;
@@ -20,6 +21,7 @@ function toQueryString(filter: AdminLeaveRecordFilter): string {
   if (filter.department) params.set("department", filter.department);
   if (filter.managerId !== undefined) params.set("managerId", String(filter.managerId));
   if (filter.kind) params.set("kind", filter.kind);
+  if (filter.leaveTypeId !== undefined) params.set("leaveTypeId", String(filter.leaveTypeId));
   if (filter.status) params.set("status", filter.status);
   if (filter.from) params.set("from", filter.from);
   if (filter.to) params.set("to", filter.to);

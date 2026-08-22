@@ -5,6 +5,7 @@ import { CorrectRecordModal } from "@/components/admin/CorrectRecordModal";
 import { RecordBackToWorkModal } from "@/components/admin/RecordBackToWorkModal";
 import { LoadingState } from "@/components/ui/Spinner";
 import { useAdminLeaveRecords } from "@/hooks/useAdminLeaveRecords";
+import { useLeaveTypes } from "@/hooks/useLeaveTypes";
 import { useEmployeeDirectory } from "@/hooks/useEmployeeDirectory";
 import { formatShortDate, parseISODateOnly, todayUTC } from "@/lib/date";
 import { AdminLeaveRecord, LeaveDecisionStatus } from "@/types/domain";
@@ -36,7 +37,7 @@ function getReturnStatus(record: AdminLeaveRecord): ReturnStatus | null {
 
 export function LeaveManagementScreen() {
   const [department, setDepartment] = useState("");
-  const [kind, setKind] = useState<"" | "leave" | "extension">("");
+  const [leaveTypeId, setLeaveTypeId] = useState<"" | number>("");
   const [status, setStatus] = useState<"" | LeaveDecisionStatus>("");
   const [modal, setModal] = useState<
     { type: "correct" | "backToWork"; record: AdminLeaveRecord } | null
@@ -45,14 +46,15 @@ export function LeaveManagementScreen() {
   const filter = useMemo(
     () => ({
       department: department || undefined,
-      kind: kind || undefined,
+      leaveTypeId: leaveTypeId === "" ? undefined : leaveTypeId,
       status: status || undefined,
     }),
-    [department, kind, status],
+    [department, leaveTypeId, status],
   );
 
   const { rows, isLoading, error, refresh } = useAdminLeaveRecords(filter);
   const { rows: directoryRows } = useEmployeeDirectory({});
+  const { types: leaveTypes } = useLeaveTypes();
 
   const departments = useMemo(
     () => [...new Set(directoryRows.map((r) => r.employee.department).filter((d): d is string => Boolean(d)))],
@@ -83,13 +85,16 @@ export function LeaveManagementScreen() {
           ))}
         </select>
         <select
-          value={kind}
-          onChange={(e) => setKind(e.target.value as typeof kind)}
+          value={leaveTypeId}
+          onChange={(e) => setLeaveTypeId(e.target.value === "" ? "" : Number(e.target.value))}
           className="rounded-[8px] border border-line bg-card px-3 py-[7px] text-[12.5px] text-[#4E5359]"
         >
           <option value="">All types</option>
-          <option value="leave">Annual Leave</option>
-          <option value="extension">Unpaid Extension</option>
+          {leaveTypes.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.name}
+            </option>
+          ))}
         </select>
         <select
           value={status}
@@ -137,7 +142,7 @@ export function LeaveManagementScreen() {
                 <div className="truncate text-[12.5px] font-medium">{record.employeeName}</div>
                 <div className="text-[10.5px] text-muted">{record.department ?? "—"}</div>
               </div>
-              <div className="text-[12.5px]">{record.type}</div>
+              <div className="text-[12.5px]">{record.leaveTypeName}</div>
               <div className="font-mono text-[11px] text-[#4E5359]">
                 {formatShortDate(record.startDate)} – {formatShortDate(record.endDate)}
               </div>

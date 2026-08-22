@@ -54,7 +54,7 @@ export function CorrectRecordModal({ record, onClose, onSaved }: CorrectRecordMo
           <div>
             <div className="text-[17px] font-semibold tracking-[-0.02em]">Correct record</div>
             <div className="mt-[3px] text-[12.5px] text-muted">
-              {record.employeeName} — {record.type}
+              {record.employeeName} — {record.leaveTypeName}
             </div>
           </div>
           <button

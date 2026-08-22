@@ -2,6 +2,9 @@ export type UserRole = "employee" | "manager" | "admin";
 
 export type LeaveDecisionStatus = "pending" | "approved" | "rejected" | "cancelled";
 
+/** Structural — which physical record shape a row came from. Stays 2-valued forever, unlike leave type. */
+export type LeaveRecordKind = "leave" | "extension";
+
 export interface CurrentUser {
   id: string;
   fullName: string;
@@ -35,13 +38,15 @@ export interface QueueItem {
   initials: string;
   name: string;
   roleLine: string;
-  type: "Annual Leave" | "Unpaid Extension";
+  leaveTypeId: number;
+  leaveTypeName: string;
   dates: string;
   days: number;
   balanceAfterLabel: string;
   balanceIsNegative?: boolean;
   reason: string;
   attachment?: string;
+  attachmentUrl?: string;
   cover: string;
   backToWork: string;
   balUsedPct: number;
@@ -80,14 +85,28 @@ export interface OnLeaveRow {
   initials: string;
   name: string;
   department: string;
-  type: "Annual Leave" | "Unpaid Extension";
+  leaveTypeId: number;
+  leaveTypeName: string;
   dates: string;
   backToWork: string;
 }
 
 // --- Real API shapes (mirrors backend/src/types/entities.ts + leave.ts) ---
 
-export type EmployeeLeaveStatus = "not_on_leave" | "on_annual_leave" | "on_unpaid_extension" | "returned";
+export type EmployeeLeaveStatus = "not_on_leave" | "on_leave" | "on_unpaid_extension" | "returned";
+
+export interface LeaveTypeSummary {
+  id: number;
+  code: string;
+  name: string;
+  isPaid: boolean;
+  requiresEligibility: boolean;
+  isChildType: boolean;
+  defaultEntitlementDays: number | null;
+  isSystem: boolean;
+  isActive: boolean;
+  sortOrder: number;
+}
 
 export interface EmployeeProfile {
   id: number;
@@ -106,6 +125,7 @@ export interface LeaveRequestRecord {
   id: number;
   employeeId: number;
   managerId: number;
+  leaveTypeId: number;
   startDate: string;
   endDate: string;
   numberOfDays: number;
@@ -134,6 +154,7 @@ export interface LeaveExtensionRecord {
   leaveRequestId: number;
   employeeId: number;
   managerId: number;
+  leaveTypeId: number;
   startDate: string;
   endDate: string;
   numberOfDays: number;
@@ -146,8 +167,10 @@ export interface LeaveExtensionRecord {
 
 export interface LeaveHistoryEntry {
   id: number;
-  kind: "leave" | "extension";
+  kind: LeaveRecordKind;
   parentLeaveRequestId: number | null;
+  leaveTypeId: number;
+  leaveTypeName: string;
   startDate: string;
   endDate: string;
   numberOfDays: number;
@@ -158,6 +181,12 @@ export interface LeaveHistoryEntry {
   decidedAt: string | null;
 }
 
+export interface EmployeeOtherBalance {
+  leaveTypeId: number;
+  leaveTypeName: string;
+  balance: LeaveBalance;
+}
+
 export interface EmployeeOverview {
   employee: EmployeeProfile;
   managerName: string | null;
@@ -165,7 +194,9 @@ export interface EmployeeOverview {
   status: EmployeeLeaveStatus;
   currentLeave: LeaveRequestRecord | null;
   currentExtension: LeaveExtensionRecord | null;
+  currentLeaveTypeName: string | null;
   balance: LeaveBalance;
+  otherBalances: EmployeeOtherBalance[];
   recent: LeaveHistoryEntry[];
 }
 
@@ -227,16 +258,18 @@ export interface ManagerQueueStats {
 
 export interface ManagerQueueItemRecord {
   id: number;
-  kind: "leave" | "extension";
+  kind: LeaveRecordKind;
   employeeId: number;
   employeeName: string;
   department: string | null;
-  type: "Annual Leave" | "Unpaid Extension";
+  leaveTypeId: number;
+  leaveTypeName: string;
   startDate: string;
   endDate: string;
   numberOfDays: number;
   reason: string | null;
   attachmentName: string | null;
+  attachmentUrl: string | null;
   backToWorkDate: string;
   submittedAt: string;
   balance: LeaveBalance;
@@ -299,7 +332,8 @@ export interface ManagerOnLeaveRowRecord {
   employeeId: number;
   name: string;
   department: string | null;
-  type: "Annual Leave" | "Unpaid Extension";
+  leaveTypeId: number;
+  leaveTypeName: string;
   startDate: string;
   endDate: string;
   expectedBackToWorkDate: string;
@@ -315,8 +349,9 @@ export interface TeamHistoryRow {
   employeeId: number;
   employeeName: string;
   department: string | null;
-  kind: "leave" | "extension";
-  type: "Annual Leave" | "Unpaid Extension";
+  kind: LeaveRecordKind;
+  leaveTypeId: number;
+  leaveTypeName: string;
   startDate: string;
   endDate: string;
   numberOfDays: number;
@@ -328,7 +363,8 @@ export interface TeamHistoryRow {
 export interface TeamCalendarBar {
   startDate: string;
   endDate: string;
-  type: "Annual Leave" | "Unpaid Extension";
+  leaveTypeId: number;
+  leaveTypeName: string;
   status: LeaveDecisionStatus;
 }
 
@@ -410,8 +446,9 @@ export interface AdminLeaveRecord {
   employeeId: number;
   employeeName: string;
   department: string | null;
-  kind: "leave" | "extension";
-  type: "Annual Leave" | "Unpaid Extension";
+  kind: LeaveRecordKind;
+  leaveTypeId: number;
+  leaveTypeName: string;
   startDate: string;
   endDate: string;
   numberOfDays: number;
@@ -448,7 +485,7 @@ export interface AdminReportsResult {
     unpaidApprovedCount: number;
   };
   monthly: { label: string; days: number; heightPercent: number }[];
-  leaveTypeSplit: { type: "Annual Leave" | "Unpaid Extension"; days: number; percent: number }[];
+  leaveTypeSplit: { leaveTypeId: number; leaveTypeName: string; days: number; percent: number }[];
   departmentTable: {
     name: string;
     headcount: number;

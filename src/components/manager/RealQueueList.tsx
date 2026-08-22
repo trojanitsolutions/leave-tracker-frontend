@@ -3,15 +3,20 @@
 import { useMemo, useState } from "react";
 import { QueueRow } from "@/components/manager/QueueRow";
 import { LoadingState } from "@/components/ui/Spinner";
+import { useLeaveTypes } from "@/hooks/useLeaveTypes";
 import { apiRequest, ApiClientError } from "@/lib/api";
 import { formatRangeLabelUpper } from "@/lib/date";
-import { ManagerQueueItemRecord, QueueDecisionStatus, QueueItem } from "@/types/domain";
+import { LeaveTypeSummary, ManagerQueueItemRecord, QueueDecisionStatus, QueueItem } from "@/types/domain";
 
 function compositeKey(record: ManagerQueueItemRecord): string {
   return `${record.kind}-${record.id}`;
 }
 
-function mapToQueueItem(record: ManagerQueueItemRecord, status: QueueDecisionStatus): QueueItem {
+function mapToQueueItem(
+  record: ManagerQueueItemRecord,
+  status: QueueDecisionStatus,
+  leaveTypesById: Map<number, LeaveTypeSummary>,
+): QueueItem {
   const initials = record.employeeName
     .split(" ")
     .map((part) => part[0])
@@ -24,20 +29,24 @@ function mapToQueueItem(record: ManagerQueueItemRecord, status: QueueDecisionSta
     record.teamOverlap.length === 0
       ? "No one else on the team is out during this window."
       : record.teamOverlap.map((entry) => `${entry.name} (${entry.dates})`).join("; ");
+  // Unpaid types (today: Unpaid Extension, but any future standalone unpaid type too) never
+  // touch a balance — everything else shows the real remaining count for its own pool.
+  const isPaidType = leaveTypesById.get(record.leaveTypeId)?.isPaid ?? true;
 
   return {
     id: compositeKey(record),
     initials,
     name: record.employeeName,
     roleLine: record.department ?? "—",
-    type: record.type,
+    leaveTypeId: record.leaveTypeId,
+    leaveTypeName: record.leaveTypeName,
     dates: formatRangeLabelUpper(record.startDate, record.endDate),
     days: record.numberOfDays,
-    balanceAfterLabel:
-      record.kind === "extension" ? "unaffected (unpaid)" : `${remaining} remaining`,
-    balanceIsNegative: record.kind === "leave" && remaining < 0,
+    balanceAfterLabel: isPaidType ? `${remaining} remaining` : "unaffected (unpaid)",
+    balanceIsNegative: isPaidType && remaining < 0,
     reason: record.reason ?? "No reason given.",
     attachment: record.attachmentName ?? undefined,
+    attachmentUrl: record.attachmentUrl ?? undefined,
     cover,
     backToWork: record.backToWorkDate,
     balUsedPct: usedPct,
@@ -58,11 +67,16 @@ export function RealQueueList({ queue, isLoading, error, onRefresh }: RealQueueL
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [decisions, setDecisions] = useState<Record<string, QueueDecisionStatus>>({});
   const [actionError, setActionError] = useState<string | null>(null);
+  const { types: leaveTypes } = useLeaveTypes();
 
+  const leaveTypesById = useMemo(() => new Map(leaveTypes.map((t) => [t.id, t])), [leaveTypes]);
   const recordByKey = useMemo(() => new Map(queue.map((r) => [compositeKey(r), r])), [queue]);
   const items = useMemo(
-    () => queue.map((record) => mapToQueueItem(record, decisions[compositeKey(record)] ?? "pending")),
-    [queue, decisions],
+    () =>
+      queue.map((record) =>
+        mapToQueueItem(record, decisions[compositeKey(record)] ?? "pending", leaveTypesById),
+      ),
+    [queue, decisions, leaveTypesById],
   );
 
   async function handleAction(key: string, action: "approve" | "reject" | "undo") {

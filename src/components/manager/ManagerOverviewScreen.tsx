@@ -23,7 +23,8 @@ function mapOnLeaveRow(record: ManagerOnLeaveRowRecord): OnLeaveRow {
     initials: getInitials(record.name),
     name: record.name,
     department: record.department ?? "—",
-    type: record.type,
+    leaveTypeId: record.leaveTypeId,
+    leaveTypeName: record.leaveTypeName,
     dates: formatRangeLabelUpper(record.startDate, record.endDate),
     backToWork: formatShortDate(record.expectedBackToWorkDate),
   };

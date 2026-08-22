@@ -73,7 +73,7 @@ export function TeamHistoryScreen() {
                   <div className="text-[10.5px] text-muted">{row.department ?? "—"}</div>
                 </div>
               </div>
-              <div className="text-[12.5px]">{row.type}</div>
+              <div className="text-[12.5px]">{row.leaveTypeName}</div>
               <div className="font-mono text-[11.5px] text-[#4E5359]">
                 {formatRangeLabelUpper(row.startDate, row.endDate)}
               </div>

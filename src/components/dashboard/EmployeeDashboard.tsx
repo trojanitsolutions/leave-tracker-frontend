@@ -27,7 +27,7 @@ export function EmployeeDashboard() {
     if (!overview) return undefined;
     return overview.recent.map((r) => ({
       id: `${r.kind}-${r.id}`,
-      type: r.kind === "extension" ? "Unpaid Extension" : "Annual Leave",
+      type: r.leaveTypeName,
       dates: formatRangeLabelUpper(r.startDate, r.endDate),
       days: r.numberOfDays,
       backToWork: formatShortDate(r.backToWorkDate),
@@ -48,7 +48,16 @@ export function EmployeeDashboard() {
     return <LoadingState label="Loading your dashboard…" />;
   }
 
-  const { balance, status, currentLeave, currentExtension, recent, managerName, managerDepartment } = overview;
+  const {
+    balance,
+    status,
+    currentLeave,
+    currentExtension,
+    currentLeaveTypeName,
+    recent,
+    managerName,
+    managerDepartment,
+  } = overview;
   const pendingRequests = recent.filter((r) => r.status === "pending");
   const oldestPending = pendingRequests[pendingRequests.length - 1];
 
@@ -61,14 +70,14 @@ export function EmployeeDashboard() {
     showExtensionCta: boolean;
   } | null = null;
 
-  if (status === "on_annual_leave" && currentLeave) {
+  if (status === "on_leave" && currentLeave) {
     const totalDays = currentLeave.numberOfDays;
     const elapsedDays = Math.round(
       (todayUTC().getTime() - parseISODateOnly(currentLeave.startDate).getTime()) / (24 * 60 * 60 * 1000),
     );
     const dayNumber = Math.min(totalDays, Math.max(1, elapsedDays + 1));
     banner = {
-      label: "On Annual Leave",
+      label: currentLeaveTypeName ?? "On Leave",
       dayNumber,
       totalDays,
       expectedBackToWork: formatShortDate(currentLeave.expectedBackToWorkDate),
@@ -83,7 +92,7 @@ export function EmployeeDashboard() {
     const dayNumber = Math.min(totalDays, Math.max(1, elapsedDays + 1));
     const backToWork = toBackToWork(currentExtension.endDate);
     banner = {
-      label: "On Unpaid Extension",
+      label: currentLeaveTypeName ?? "On Unpaid Extension",
       dayNumber,
       totalDays,
       expectedBackToWork: formatShortDate(backToWork),

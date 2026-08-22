@@ -31,9 +31,9 @@ export function MyLeaveScreen() {
         <div className="mb-[12px] text-[12px] font-semibold tracking-[0.05em] text-muted uppercase">
           Current status
         </div>
-        {overview?.status === "on_annual_leave" && overview.currentLeave ? (
+        {overview?.status === "on_leave" && overview.currentLeave ? (
           <div className="text-[13.5px]">
-            On annual leave{" "}
+            On {(overview.currentLeaveTypeName ?? "leave").toLowerCase()}{" "}
             <b>
               {formatShortDate(overview.currentLeave.startDate)} –{" "}
               {formatShortDate(overview.currentLeave.endDate)}
@@ -60,7 +60,7 @@ export function MyLeaveScreen() {
           >
             Apply for annual leave
           </Link>
-          {overview?.status === "on_annual_leave" ? (
+          {overview?.status === "on_leave" ? (
             <Link
               href="/extend"
               className="rounded-[8px] border border-accent bg-card px-[14px] py-2 text-[12.5px] font-semibold text-accent transition-colors hover:bg-accent-tint"
@@ -87,9 +87,7 @@ export function MyLeaveScreen() {
                 className="flex items-center justify-between gap-3 border-b border-[#EFF0F2] pb-[11px] last:border-b-0 last:pb-0"
               >
                 <div>
-                  <div className="text-[13px] font-medium">
-                    {entry.kind === "extension" ? "Unpaid Extension" : "Annual Leave"}
-                  </div>
+                  <div className="text-[13px] font-medium">{entry.leaveTypeName}</div>
                   <div className="font-mono text-[11.5px] text-muted">
                     {formatRangeLabelUpper(entry.startDate, entry.endDate)} · {entry.numberOfDays} days
                   </div>

@@ -1,9 +1,5 @@
+import { getLeaveTypeStyle } from "@/lib/leaveTypeStyles";
 import { QueueItem } from "@/types/domain";
-
-const TYPE_STYLES: Record<QueueItem["type"], string> = {
-  "Annual Leave": "bg-[#EEEFF1] text-[#4E5359]",
-  "Unpaid Extension": "bg-accent-tint text-accent",
-};
 
 const DECISION_PILL: Record<"approved" | "rejected", string> = {
   approved: "bg-status-approved-bg text-status-approved-fg",
@@ -40,9 +36,9 @@ export function QueueRow({ item, expanded, onToggle, onApprove, onReject, onUndo
 
         <div>
           <span
-            className={`rounded-[6px] px-2 py-[2px] text-[11px] font-semibold ${TYPE_STYLES[item.type]}`}
+            className={`rounded-[6px] px-2 py-[2px] text-[11px] font-semibold ${getLeaveTypeStyle(item.leaveTypeId).chip}`}
           >
-            {item.type}
+            {item.leaveTypeName}
           </span>
           <div className="mt-1 font-mono text-[11.5px] text-[#4E5359]">{item.dates}</div>
         </div>
@@ -112,10 +108,25 @@ export function QueueRow({ item, expanded, onToggle, onApprove, onReject, onUndo
             </div>
             <div className="text-[13px] leading-[1.55] text-[#2A2E33]">{item.reason}</div>
             {item.attachment ? (
-              <div className="mt-[11px] inline-flex items-center gap-2 rounded-[8px] border border-line bg-card px-[11px] py-[6px] text-[12px]">
-                <span className="font-mono text-[10px] text-muted">PDF</span>
-                {item.attachment}
-              </div>
+              item.attachmentUrl ? (
+                <a
+                  href={item.attachmentUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="mt-[11px] inline-flex items-center gap-2 rounded-[8px] border border-line bg-card px-[11px] py-[6px] text-[12px] text-accent transition-colors hover:border-accent hover:bg-accent-tint"
+                >
+                  <span className="font-mono text-[10px] text-muted">FILE</span>
+                  {item.attachment}
+                  <span className="text-[11px]">View →</span>
+                </a>
+              ) : (
+                <div className="mt-[11px] inline-flex items-center gap-2 rounded-[8px] border border-line bg-card px-[11px] py-[6px] text-[12px]">
+                  <span className="font-mono text-[10px] text-muted">FILE</span>
+                  {item.attachment}
+                  <span className="text-[11px] text-muted-2">(uploaded before file storage was added)</span>
+                </div>
+              )
             ) : null}
           </div>
           <div>

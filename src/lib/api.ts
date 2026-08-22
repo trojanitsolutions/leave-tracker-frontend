@@ -83,3 +83,43 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
 
   return envelope.data as T;
 }
+
+export interface UploadedAttachment {
+  url: string;
+  name: string;
+}
+
+export async function uploadAttachment(file: File): Promise<UploadedAttachment> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const doUpload = () =>
+    fetch(`${API_BASE_URL}/uploads/attachment`, {
+      method: "POST",
+      body: formData,
+      credentials: "include",
+    });
+
+  let response = await doUpload();
+
+  if (response.status === 401) {
+    const refreshed = await refreshAccessToken();
+    if (refreshed) {
+      response = await doUpload();
+    } else {
+      redirectToLogin();
+    }
+  }
+
+  const envelope = (await response.json().catch(() => null)) as ApiEnvelope<UploadedAttachment> | null;
+
+  if (!response.ok || !envelope?.success) {
+    throw new ApiClientError(
+      response.status,
+      envelope?.message ?? `Upload failed with status ${response.status}`,
+      envelope?.details,
+    );
+  }
+
+  return envelope.data as UploadedAttachment;
+}
