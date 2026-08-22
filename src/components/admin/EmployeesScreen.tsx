@@ -36,8 +36,15 @@ export function EmployeesScreen() {
     [search, department, managerId],
   );
 
-  const { rows, isLoading, error, refresh } = useEmployeeDirectory(filter);
+  const { rows: directoryRows, isLoading, error, refresh } = useEmployeeDirectory(filter);
   const { rows: allRows, refresh: refreshAll } = useEmployeeDirectory({});
+
+  // Managers aren't editable from this screen — admin's only manager-related action is
+  // assigning one as a reporting manager (via managerOptions below), not managing them here.
+  const rows = useMemo(
+    () => directoryRows.filter((r) => r.employee.role !== "manager"),
+    [directoryRows],
+  );
 
   const departments = useMemo(
     () => [...new Set(allRows.map((r) => r.employee.department).filter((d): d is string => Boolean(d)))],
