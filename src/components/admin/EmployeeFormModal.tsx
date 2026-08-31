@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { apiRequest, ApiClientError } from "@/lib/api";
 import { CompanySettings, EmployeeDirectoryRow, EmployeeProfile, UserRole } from "@/types/domain";
+import { useToast } from "@/context/ToastContext";
 
 // Manager is deliberately absent — manager accounts are provisioned separately (see
 // backend's create-manager script), never created or promoted-into from this form. Admin's
@@ -72,6 +73,7 @@ function initialState(editing: EmployeeDirectoryRow | null): FormState {
 }
 
 export function EmployeeFormModal({ managers, editing, onClose, onSaved }: EmployeeFormModalProps) {
+  const toast = useToast();
   const [form, setForm] = useState<FormState>(() => initialState(editing));
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -116,6 +118,7 @@ export function EmployeeFormModal({ managers, editing, onClose, onSaved }: Emplo
     try {
       if (editing) {
         await apiRequest(`/employees/${editing.employee.id}`, { method: "PATCH", body: payload });
+        toast.success(`${form.fullName.trim()}'s record was updated.`);
         onSaved();
       } else {
         const result = await apiRequest<{ employee: EmployeeProfile; emailSent: boolean }>("/employees", {
@@ -123,13 +126,16 @@ export function EmployeeFormModal({ managers, editing, onClose, onSaved }: Emplo
           body: payload,
         });
         if (result.emailSent) {
+          toast.success(`${form.fullName.trim()} was added and emailed their sign-in details.`);
           onSaved();
         } else {
           setEmailFailed({ email: form.email.trim(), password: form.password });
         }
       }
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : "Something went wrong saving this employee.");
+      const message = err instanceof ApiClientError ? err.message : "Something went wrong saving this employee.";
+      setError(message);
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }

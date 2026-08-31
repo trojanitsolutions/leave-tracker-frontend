@@ -5,6 +5,7 @@ import { QueueRow } from "@/components/manager/QueueRow";
 import { LoadingState } from "@/components/ui/Spinner";
 import { useLeaveTypes } from "@/hooks/useLeaveTypes";
 import { apiRequest, ApiClientError } from "@/lib/api";
+import { useToast } from "@/context/ToastContext";
 import { formatRangeLabelUpper } from "@/lib/date";
 import { LeaveTypeSummary, ManagerQueueItemRecord, QueueDecisionStatus, QueueItem } from "@/types/domain";
 
@@ -64,6 +65,7 @@ interface RealQueueListProps {
 }
 
 export function RealQueueList({ queue, isLoading, error, onRefresh }: RealQueueListProps) {
+  const toast = useToast();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [decisions, setDecisions] = useState<Record<string, QueueDecisionStatus>>({});
   const [actionError, setActionError] = useState<string | null>(null);
@@ -85,14 +87,22 @@ export function RealQueueList({ queue, isLoading, error, onRefresh }: RealQueueL
 
     setActionError(null);
     const basePath = record.kind === "extension" ? "/extensions" : "/leave-requests";
+    const ACTION_LABEL: Record<typeof action, string> = {
+      approve: "approved",
+      reject: "rejected",
+      undo: "reverted to pending",
+    };
     try {
       await apiRequest(`${basePath}/${record.id}/${action}`, { method: "POST" });
       setDecisions((prev) => ({
         ...prev,
         [key]: action === "approve" ? "approved" : action === "reject" ? "rejected" : "pending",
       }));
+      toast.success(`${record.employeeName}'s request was ${ACTION_LABEL[action]}.`);
     } catch (err) {
-      setActionError(err instanceof ApiClientError ? err.message : "Something went wrong.");
+      const message = err instanceof ApiClientError ? err.message : "Something went wrong.";
+      setActionError(message);
+      toast.error(message);
     }
   }
 

@@ -67,7 +67,7 @@ export function LoginForm() {
         </div>
         <div className="relative max-w-[440px]">
           <div className="text-[40px] leading-[1.15] font-semibold tracking-[-0.03em] text-white text-pretty">
-            Leave, without the follow-up email.
+            Every leave request, in one place — no spreadsheets, no chasing.
           </div>
           <div className="mt-3.5 text-[15px] leading-relaxed text-white/58">
             Apply, approve and track return-to-work dates in one place. Balances update the moment

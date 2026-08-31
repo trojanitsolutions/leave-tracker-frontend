@@ -13,11 +13,6 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-/**
- * Real session state, backed by the httpOnly cookie the backend sets on login.
- * Separate from RoleContext, which is a client-only "viewing as" preview for
- * the Manager/Admin dashboards until those have real auth of their own.
- */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [employee, setEmployee] = useState<EmployeeProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);

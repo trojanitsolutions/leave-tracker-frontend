@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { DeleteEmployeeModal } from "@/components/admin/DeleteEmployeeModal";
 import { EmployeeFormModal } from "@/components/admin/EmployeeFormModal";
 import { LoadingState } from "@/components/ui/Spinner";
 import { useEmployeeDirectory } from "@/hooks/useEmployeeDirectory";
@@ -26,6 +27,7 @@ export function EmployeesScreen() {
     open: false,
     editing: null,
   });
+  const [deleteTarget, setDeleteTarget] = useState<EmployeeDirectoryRow | null>(null);
 
   const filter = useMemo(
     () => ({
@@ -178,12 +180,25 @@ export function EmployeesScreen() {
                   </div>
                 </div>
                 <div className="text-[14px] font-semibold tabular-nums">{balance.remaining}</div>
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-[6px]">
                   <button
                     onClick={() => openEdit(row)}
                     className="rounded-[7px] border border-line bg-card px-[10px] py-[5px] text-[11.5px] font-medium text-[#4E5359] transition-colors hover:border-line-hover hover:bg-surface"
                   >
                     Edit
+                  </button>
+                  <button
+                    onClick={() => setDeleteTarget(row)}
+                    aria-label={`Delete ${employee.fullName}`}
+                    className="flex h-[26px] w-[26px] flex-none items-center justify-center rounded-[7px] border border-line bg-card text-[#4E5359] transition-colors hover:border-status-rejected-fg/40 hover:bg-status-rejected-bg hover:text-status-rejected-fg"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path
+                        d="M4 7h16M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3m2 0-.867 12.142A2 2 0 0 1 15.138 21H8.862a2 2 0 0 1-1.995-1.858L6 7"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
                   </button>
                 </div>
               </div>
@@ -205,6 +220,18 @@ export function EmployeesScreen() {
           editing={modalState.editing}
           onClose={closeModal}
           onSaved={handleSaved}
+        />
+      ) : null}
+
+      {deleteTarget ? (
+        <DeleteEmployeeModal
+          employee={deleteTarget.employee}
+          onClose={() => setDeleteTarget(null)}
+          onDeleted={() => {
+            setDeleteTarget(null);
+            refresh();
+            refreshAll();
+          }}
         />
       ) : null}
     </div>

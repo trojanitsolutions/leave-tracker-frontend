@@ -7,7 +7,7 @@ import { useEmployeeDirectory } from "@/hooks/useEmployeeDirectory";
 import { useLeaveTypes } from "@/hooks/useLeaveTypes";
 import { getLeaveTypeStyle } from "@/lib/leaveTypeStyles";
 import { todayUTC } from "@/lib/date";
-import { LeaveTypeSummary, TeamCalendarBar } from "@/types/domain";
+import { LeaveTypeSummary, TeamCalendarBar, TeamCalendarPerson } from "@/types/domain";
 
 function getInitials(fullName: string): string {
   return fullName
@@ -31,6 +31,19 @@ function buildLegend(leaveTypes: LeaveTypeSummary[]): { label: string; swatch: s
       { label: `${t.name} · pending`, swatch: style.barPending.split(" ")[0] },
     ];
   });
+}
+
+/** Days already covered by one of the person's bars, so weekend shading doesn't stack on top of the bar. */
+function coveredDaySet(person: TeamCalendarPerson, monthKey: string, daysInMonth: number): Set<number> {
+  const covered = new Set<number>();
+  for (const bar of person.bars) {
+    const barStartsBeforeMonth = bar.startDate.slice(0, 7) < monthKey;
+    const barEndsAfterMonth = bar.endDate.slice(0, 7) > monthKey;
+    const startDay = barStartsBeforeMonth ? 1 : new Date(bar.startDate).getUTCDate();
+    const endDay = barEndsAfterMonth ? daysInMonth : new Date(bar.endDate).getUTCDate();
+    for (let day = startDay; day <= endDay; day++) covered.add(day);
+  }
+  return covered;
 }
 
 export function AdminCalendarScreen() {
@@ -62,7 +75,7 @@ export function AdminCalendarScreen() {
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
   const isWeekend = (day: number) => {
     const dow = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
-    return dow === 5 || dow === 6; // Friday, Saturday — Qatar weekend
+    return dow === 5; // Friday — Qatar weekend
   };
   const todayInThisMonth =
     today.getUTCFullYear() === year && today.getUTCMonth() + 1 === month ? today.getUTCDate() : null;
@@ -123,7 +136,7 @@ export function AdminCalendarScreen() {
                   key={day}
                   className={`py-[9px] text-center font-mono text-[9.5px] ${
                     day === todayInThisMonth ? "font-bold text-accent" : "text-muted"
-                  } ${isWeekend(day) ? "bg-[#FAFBFB]" : ""}`}
+                  } ${isWeekend(day) ? "bg-[#E7E9EC]" : ""}`}
                 >
                   {day}
                 </div>
@@ -135,7 +148,9 @@ export function AdminCalendarScreen() {
                 No employees match these filters.
               </div>
             ) : (
-              data?.people.map((person) => (
+              data?.people.map((person) => {
+                const covered = coveredDaySet(person, monthKey, daysInMonth);
+                return (
                 <div
                   key={person.employeeId}
                   className="grid items-center border-b border-[#EFF0F2] transition-colors hover:bg-[#FAFBFB]"
@@ -151,14 +166,14 @@ export function AdminCalendarScreen() {
                     </div>
                   </div>
                   <div
-                    className="relative grid h-[44px]"
+                    className="relative grid h-[44px] overflow-hidden"
                     style={{ gridColumn: `2 / span ${daysInMonth}`, gridTemplateColumns: `repeat(${daysInMonth}, 1fr)` }}
                   >
                     {days.map((day) =>
-                      isWeekend(day) ? (
+                      isWeekend(day) && !covered.has(day) ? (
                         <div
                           key={day}
-                          className="bg-[#FAFBFB]"
+                          className="my-auto h-[22px] rounded-[4px] bg-[#E7E9EC]"
                           style={{ gridColumn: `${day} / span 1`, gridRow: 1 }}
                         />
                       ) : null,
@@ -186,17 +201,21 @@ export function AdminCalendarScreen() {
                       );
                     })}
                     {person.bars.length === 0 ? (
-                      <div className="col-span-full self-center pl-2 text-[11px] text-[#C9CDD2]">
+                      <div
+                        className="col-span-full self-center pl-2 text-[11px] text-[#C9CDD2]"
+                        style={{ gridRow: 1 }}
+                      >
                         No leave booked
                       </div>
                     ) : null}
                   </div>
                 </div>
-              ))
+                );
+              })
             )}
 
             <div className="flex items-center justify-between px-[18px] py-[12px] text-[12px] text-muted">
-              <div>Accent line marks today. Friday and Saturday are shaded as the Qatar weekend.</div>
+              <div>Accent line marks today. Friday is shaded as the Qatar weekend.</div>
             </div>
           </div>
         )}
