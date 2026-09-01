@@ -3,9 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { ActiveView, useRole } from "@/context/RoleContext";
 import { NAV_ITEMS, ROLE_TAGS } from "@/data/navigation";
+import { LogoutConfirmModal } from "@/components/layout/LogoutConfirmModal";
 
 const VIEW_TOGGLE_OPTIONS: { view: ActiveView; label: string }[] = [
   { view: "admin", label: "Admin" },
@@ -31,6 +33,7 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const router = useRouter();
   const { role, activeView, setActiveView } = useRole();
   const { employee, logout } = useAuth();
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   // AuthenticatedLayout only mounts this once a real session exists.
   if (!employee) return null;
@@ -50,6 +53,7 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   }
 
   async function handleSignOut() {
+    setShowLogoutConfirm(false);
     await logout();
     router.push("/login");
   }
@@ -145,7 +149,7 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
             <div className="font-mono text-[10px] text-white/[0.4]">{displayCode}</div>
           </div>
           <button
-            onClick={handleSignOut}
+            onClick={() => setShowLogoutConfirm(true)}
             aria-label="Sign out"
             className="text-[14px] text-white/[0.4] transition-colors hover:text-white"
           >
@@ -153,6 +157,10 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
           </button>
         </div>
       </div>
+
+      {showLogoutConfirm ? (
+        <LogoutConfirmModal onConfirm={handleSignOut} onCancel={() => setShowLogoutConfirm(false)} />
+      ) : null}
     </aside>
   );
 }
