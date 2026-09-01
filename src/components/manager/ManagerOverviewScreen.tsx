@@ -61,7 +61,7 @@ export function ManagerOverviewScreen() {
   return (
     <div className="flex w-full flex-col gap-[16px]">
       <ManagerOverviewStatCards {...data.stats} />
-      <div className="grid items-start gap-[16px] lg:grid-cols-[1fr_1.4fr]">
+      <div className="grid items-stretch gap-[16px] lg:grid-cols-[1fr_1.4fr]">
         <TeamOnLeaveCard rows={data.currentlyOnLeave.map(mapOnLeaveRow)} />
         <BackToWorkWatchlist rows={data.backToWorkWatchlist.map(mapBackToWorkRow)} />
       </div>

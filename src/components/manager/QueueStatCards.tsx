@@ -1,7 +1,7 @@
 interface QueueStatCardsProps {
   awaitingYou: number;
   oldestInQueueDays: number;
-  teamOutNextWeek: number;
+  peopleOutNextWeek: number;
   teamSize: number;
   notReturnedAsExpected: number;
 }
@@ -9,7 +9,7 @@ interface QueueStatCardsProps {
 export function QueueStatCards({
   awaitingYou,
   oldestInQueueDays,
-  teamOutNextWeek,
+  peopleOutNextWeek,
   teamSize,
   notReturnedAsExpected,
 }: QueueStatCardsProps) {
@@ -27,10 +27,10 @@ export function QueueStatCards({
       </div>
       <div className="flex-1 rounded-[12px] border border-line bg-card px-[16px] py-[14px]">
         <div className="font-mono text-[9.5px] tracking-[0.07em] text-muted">
-          TEAM OUT NEXT WEEK
+          PEOPLE OUT NEXT WEEK
         </div>
         <div className="mt-1 text-[26px] font-semibold tabular-nums">
-          {teamOutNextWeek} <span className="text-[13px] font-medium text-muted">of {teamSize}</span>
+          {peopleOutNextWeek} <span className="text-[13px] font-medium text-muted">of {teamSize}</span>
         </div>
       </div>
       <div className="flex-1 rounded-[12px] border border-[#FCD9A6] bg-[#FFFBF3] px-[16px] py-[14px]">

@@ -76,7 +76,7 @@ export function AdminDashboard() {
   return (
     <div className="flex w-full flex-col gap-[16px]">
       <AdminTopStats {...data.stats} pendingUnpaidExtensions={0} pendingApproachingEligibility={0} />
-      <div className="grid items-start gap-[16px] lg:grid-cols-[1.6fr_1fr]">
+      <div className="grid items-stretch gap-[16px] lg:grid-cols-[1.6fr_1fr]">
         <BackToWorkWatchlist rows={data.backToWorkWatchlist.map(mapBackToWorkRow)} />
         <div className="flex flex-col gap-[16px]">
           <ApproachingEligibilityCard items={data.approachingEligibility.map(mapEligibilityItem)} />

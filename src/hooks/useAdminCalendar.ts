@@ -44,3 +44,51 @@ export function useAdminCalendar(enabled: boolean, month: string, department: st
 
   return { data: enabled ? data : null, isLoading: enabled && isLoading, error: enabled ? error : null };
 }
+
+interface UseAdminCalendarYearResult {
+  data: (TeamCalendarResult | null)[];
+  isLoading: boolean;
+  error: string | null;
+}
+
+const EMPTY_YEAR = Array<TeamCalendarResult | null>(12).fill(null);
+
+/** Fetches all 12 months of a year in parallel, reusing the same per-month admin endpoint. */
+export function useAdminCalendarYear(enabled: boolean, year: number, department: string): UseAdminCalendarYearResult {
+  const [data, setData] = useState<(TeamCalendarResult | null)[]>(EMPTY_YEAR);
+  const [isLoading, setIsLoading] = useState(enabled);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!enabled) return;
+
+    let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsLoading(true);
+    setError(null);
+
+    const monthKeys = Array.from({ length: 12 }, (_, i) => `${year}-${String(i + 1).padStart(2, "0")}`);
+    Promise.all(
+      monthKeys.map((m) => {
+        const params = new URLSearchParams({ month: m });
+        if (department) params.set("department", department);
+        return apiRequest<TeamCalendarResult>(`/admin/calendar?${params.toString()}`);
+      }),
+    )
+      .then((results) => {
+        if (!cancelled) setData(results);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load");
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [enabled, year, department]);
+
+  return { data: enabled ? data : EMPTY_YEAR, isLoading: enabled && isLoading, error: enabled ? error : null };
+}

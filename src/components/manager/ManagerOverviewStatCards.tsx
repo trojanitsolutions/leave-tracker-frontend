@@ -4,7 +4,7 @@ interface ManagerOverviewStatCardsProps {
   teamSize: number;
   currentlyOnLeave: number;
   pendingApprovals: number;
-  teamOutNextWeek: number;
+  peopleOutNextWeek: number;
   notReturnedAsExpected: number;
 }
 
@@ -12,7 +12,7 @@ export function ManagerOverviewStatCards({
   teamSize,
   currentlyOnLeave,
   pendingApprovals,
-  teamOutNextWeek,
+  peopleOutNextWeek,
   notReturnedAsExpected,
 }: ManagerOverviewStatCardsProps) {
   return (
@@ -26,8 +26,8 @@ export function ManagerOverviewStatCards({
         <div className="mt-1 text-[26px] font-semibold tabular-nums">{currentlyOnLeave}</div>
       </div>
       <div className="flex-1 rounded-[12px] border border-line bg-card px-[16px] py-[14px]">
-        <div className="font-mono text-[9.5px] tracking-[0.07em] text-muted">TEAM OUT NEXT WEEK</div>
-        <div className="mt-1 text-[26px] font-semibold tabular-nums">{teamOutNextWeek}</div>
+        <div className="font-mono text-[9.5px] tracking-[0.07em] text-muted">PEOPLE OUT NEXT WEEK</div>
+        <div className="mt-1 text-[26px] font-semibold tabular-nums">{peopleOutNextWeek}</div>
       </div>
       <div className="flex-1 rounded-[12px] border border-[#FCD9A6] bg-[#FFFBF3] px-[16px] py-[14px]">
         <div className="font-mono text-[9.5px] tracking-[0.07em] text-[#92400E]">
