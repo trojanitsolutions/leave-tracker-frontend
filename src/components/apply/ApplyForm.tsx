@@ -30,6 +30,13 @@ function presetRange(days: number): { start: string; end: string } {
   return { start: toInputDate(start), end: toInputDate(end) };
 }
 
+/** Leave must start at least a day out — mirrors the backend's own cutoff. */
+function tomorrowInputDate(): string {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return toInputDate(d);
+}
+
 export function ApplyForm() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -175,6 +182,7 @@ export function ApplyForm() {
               <input
                 type="date"
                 value={startDate}
+                min={tomorrowInputDate()}
                 onChange={(e) => setStartDate(e.target.value)}
                 className="w-full rounded-[9px] border border-line bg-card px-3 py-[9px] font-mono text-[13.5px] transition-colors hover:border-line-hover"
               />
@@ -184,6 +192,7 @@ export function ApplyForm() {
               <input
                 type="date"
                 value={endDate}
+                min={startDate || tomorrowInputDate()}
                 onChange={(e) => setEndDate(e.target.value)}
                 className="w-full rounded-[9px] border border-line bg-card px-3 py-[9px] font-mono text-[13.5px] transition-colors hover:border-line-hover"
               />

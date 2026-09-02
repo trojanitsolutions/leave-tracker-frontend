@@ -10,7 +10,7 @@ interface UseTeamCalendarResult {
   error: string | null;
 }
 
-export function useTeamCalendar(enabled: boolean, month: string): UseTeamCalendarResult {
+export function useTeamCalendar(enabled: boolean, month: string, department: string): UseTeamCalendarResult {
   const [data, setData] = useState<TeamCalendarResult | null>(null);
   const [isLoading, setIsLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +23,10 @@ export function useTeamCalendar(enabled: boolean, month: string): UseTeamCalenda
     setIsLoading(true);
     setError(null);
 
-    apiRequest<TeamCalendarResult>(`/leave-requests/manager/calendar?month=${month}`)
+    const params = new URLSearchParams({ month });
+    if (department) params.set("department", department);
+
+    apiRequest<TeamCalendarResult>(`/leave-requests/manager/calendar?${params.toString()}`)
       .then((result) => {
         if (!cancelled) setData(result);
       })
@@ -37,7 +40,7 @@ export function useTeamCalendar(enabled: boolean, month: string): UseTeamCalenda
     return () => {
       cancelled = true;
     };
-  }, [enabled, month]);
+  }, [enabled, month, department]);
 
   return { data: enabled ? data : null, isLoading: enabled && isLoading, error: enabled ? error : null };
 }
@@ -51,7 +54,7 @@ interface UseTeamCalendarYearResult {
 const EMPTY_YEAR = Array<TeamCalendarResult | null>(12).fill(null);
 
 /** Fetches all 12 months of a year in parallel, reusing the same per-month endpoint. */
-export function useTeamCalendarYear(enabled: boolean, year: number): UseTeamCalendarYearResult {
+export function useTeamCalendarYear(enabled: boolean, year: number, department: string): UseTeamCalendarYearResult {
   const [data, setData] = useState<(TeamCalendarResult | null)[]>(EMPTY_YEAR);
   const [isLoading, setIsLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +68,13 @@ export function useTeamCalendarYear(enabled: boolean, year: number): UseTeamCale
     setError(null);
 
     const monthKeys = Array.from({ length: 12 }, (_, i) => `${year}-${String(i + 1).padStart(2, "0")}`);
-    Promise.all(monthKeys.map((m) => apiRequest<TeamCalendarResult>(`/leave-requests/manager/calendar?month=${m}`)))
+    Promise.all(
+      monthKeys.map((m) => {
+        const params = new URLSearchParams({ month: m });
+        if (department) params.set("department", department);
+        return apiRequest<TeamCalendarResult>(`/leave-requests/manager/calendar?${params.toString()}`);
+      }),
+    )
       .then((results) => {
         if (!cancelled) setData(results);
       })
@@ -79,7 +88,7 @@ export function useTeamCalendarYear(enabled: boolean, year: number): UseTeamCale
     return () => {
       cancelled = true;
     };
-  }, [enabled, year]);
+  }, [enabled, year, department]);
 
   return { data: enabled ? data : EMPTY_YEAR, isLoading: enabled && isLoading, error: enabled ? error : null };
 }

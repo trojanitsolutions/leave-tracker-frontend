@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { YearOverviewCalendar } from "@/components/calendar/YearOverviewCalendar";
 import { LoadingState } from "@/components/ui/Spinner";
 import { useAdminCalendar, useAdminCalendarYear } from "@/hooks/useAdminCalendar";
 import { useEmployeeDirectory } from "@/hooks/useEmployeeDirectory";
@@ -8,8 +9,6 @@ import { useLeaveTypes } from "@/hooks/useLeaveTypes";
 import { getLeaveTypeStyle } from "@/lib/leaveTypeStyles";
 import { todayUTC } from "@/lib/date";
 import { LeaveTypeSummary, TeamCalendarBar, TeamCalendarPerson } from "@/types/domain";
-
-const WEEKDAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
 
 function getInitials(fullName: string): string {
   return fullName
@@ -48,108 +47,8 @@ function coveredDaySet(person: TeamCalendarPerson, monthKey: string, daysInMonth
   return covered;
 }
 
-interface DayMarker {
-  status: "none" | "pending" | "approved";
-  leaveTypeId: number | null;
-}
-
-/** Flattens every person's bars for a month into a per-day marker, colored by leave type — same palette as the month view's bars. */
-function computeDayMarkers(
-  people: TeamCalendarPerson[] | undefined,
-  monthKey: string,
-  daysInMonth: number,
-): DayMarker[] {
-  const markers: DayMarker[] = Array.from({ length: daysInMonth + 1 }, () => ({
-    status: "none",
-    leaveTypeId: null,
-  }));
-  for (const person of people ?? []) {
-    for (const bar of person.bars) {
-      const barStartsBeforeMonth = bar.startDate.slice(0, 7) < monthKey;
-      const barEndsAfterMonth = bar.endDate.slice(0, 7) > monthKey;
-      const startDay = barStartsBeforeMonth ? 1 : new Date(bar.startDate).getUTCDate();
-      const endDay = barEndsAfterMonth ? daysInMonth : new Date(bar.endDate).getUTCDate();
-      for (let day = startDay; day <= endDay; day++) {
-        if (bar.status === "approved") {
-          markers[day] = { status: "approved", leaveTypeId: bar.leaveTypeId };
-        } else if (markers[day].status !== "approved") {
-          markers[day] = { status: "pending", leaveTypeId: bar.leaveTypeId };
-        }
-      }
-    }
-  }
-  return markers;
-}
-
 function isFriday(year: number, month: number, day: number): boolean {
   return new Date(Date.UTC(year, month - 1, day)).getUTCDay() === 5;
-}
-
-interface MiniMonthProps {
-  year: number;
-  month: number; // 1-12
-  monthLabel: string;
-  people: TeamCalendarPerson[] | undefined;
-  today: Date;
-  onSelect: () => void;
-}
-
-function MiniMonthCalendar({ year, month, monthLabel, people, today, onSelect }: MiniMonthProps) {
-  const monthKey = `${year}-${String(month).padStart(2, "0")}`;
-  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
-  const leadingBlanks = new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
-  const markers = computeDayMarkers(people, monthKey, daysInMonth);
-  const todayDay =
-    today.getUTCFullYear() === year && today.getUTCMonth() + 1 === month ? today.getUTCDate() : null;
-
-  const cells: (number | null)[] = [
-    ...Array<null>(leadingBlanks).fill(null),
-    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
-  ];
-
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className="rounded-[12px] border border-line bg-card p-[14px] text-left transition-colors hover:border-line-hover hover:bg-surface"
-    >
-      <div className="mb-[10px] text-[12.5px] font-semibold">{monthLabel}</div>
-      <div className="grid grid-cols-7 gap-y-1">
-        {WEEKDAY_LABELS.map((label, i) => (
-          <div key={i} className="text-center font-mono text-[9px] text-muted">
-            {label}
-          </div>
-        ))}
-        {cells.map((day, i) =>
-          day === null ? (
-            <div key={`blank-${i}`} />
-          ) : (
-            <div
-              key={day}
-              className={`relative flex h-[22px] items-center justify-center rounded-[5px] text-[10.5px] ${
-                day === todayDay ? "bg-accent font-bold text-white" : isFriday(year, month, day) ? "bg-[#E7E9EC] text-ink" : "text-ink"
-              }`}
-            >
-              {day}
-              {markers[day].status !== "none" && day !== todayDay ? (
-                <span
-                  className="absolute bottom-[1px] h-[5px] w-[5px] rounded-full"
-                  style={
-                    markers[day].status === "approved"
-                      ? { backgroundColor: getLeaveTypeStyle(markers[day].leaveTypeId!).swatch }
-                      : {
-                          backgroundColor: "transparent",
-                          border: `1.5px solid ${getLeaveTypeStyle(markers[day].leaveTypeId!).swatch}`,
-                        }
-                  }
-                />
-              ) : null}
-            </div>
-          ),
-        )}
-      </div>
-    </button>
-  );
 }
 
 export function AdminCalendarScreen() {
@@ -199,10 +98,6 @@ export function AdminCalendarScreen() {
   const isWeekend = (day: number) => isFriday(year, month, day);
   const todayInThisMonth =
     today.getUTCFullYear() === year && today.getUTCMonth() + 1 === month ? today.getUTCDate() : null;
-
-  const monthNames = Array.from({ length: 12 }, (_, i) =>
-    new Intl.DateTimeFormat("en-GB", { month: "long", timeZone: "UTC" }).format(new Date(Date.UTC(year, i, 1))),
-  );
 
   return (
     <div className="flex w-full flex-col gap-[14px]">
@@ -273,21 +168,14 @@ export function AdminCalendarScreen() {
             <div className="px-[20px] py-[24px] text-center text-[12.5px] text-status-rejected-fg">{yearError}</div>
           ) : (
             <>
-              <div className="grid grid-cols-1 gap-[14px] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {monthNames.map((monthLabel, i) => (
-                  <MiniMonthCalendar
-                    key={i}
-                    year={year}
-                    month={i + 1}
-                    monthLabel={monthLabel}
-                    people={yearData[i]?.people}
-                    today={today}
-                    onSelect={() => openMonth(i + 1)}
-                  />
-                ))}
-              </div>
+              <YearOverviewCalendar
+                year={year}
+                yearData={yearData}
+                onSelectMonth={openMonth}
+                emptyLabel="No employees match these filters."
+              />
               <div className="mt-[14px] text-[12px] text-muted">
-                Friday is shaded as the Qatar weekend. Click a month to see the day-by-day view.
+                Bars show total leave days and hover for exact dates. Click a month to see the day-by-day view.
               </div>
             </>
           )}
